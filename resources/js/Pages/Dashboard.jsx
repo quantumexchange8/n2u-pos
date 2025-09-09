@@ -1,25 +1,43 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import { Segmented } from 'antd';
+import { useEffect, useState } from 'react';
+import TableOrder from './Dashboard/TableOrder';
+import NonTableOrder from './Dashboard/NonTableOrder';
+import axios from 'axios';
 
 export default function Dashboard() {
-    return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
-                </h2>
-            }
-        >
-            <Head title="Dashboard" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            You're logged in!
-                        </div>
-                    </div>
+    const [tableType, setTableType] = useState('table_order');
+
+    return (
+        <AuthenticatedLayout>
+            <Head title="Table" />
+
+            <div className='flex flex-col w-full'>
+                {/* header */}
+                <div className='py-3 px-4 bg-white w-full'>
+                    <Segmented 
+                        options={[
+                            { label: 'Table Order', value: 'table_order'},
+                            { label: 'Non-table Order', value: 'non_table_order'},
+                        ]}
+                        onChange={(value) => setTableType(value)}
+                        className='p-1 rounded-lg'
+                    />
                 </div>
+
+                {/* content */}
+                {
+                    tableType === 'table_order' && (
+                        <TableOrder />
+                    )
+                }
+                {
+                    tableType === 'non_table_order' && (
+                        <NonTableOrder />
+                    )
+                }
             </div>
         </AuthenticatedLayout>
     );

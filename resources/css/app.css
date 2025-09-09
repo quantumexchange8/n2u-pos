@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.ant-segmented .ant-segmented-item-selected {
+    color: #27272A;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 8px;
+}
+
+.ant-segmented .ant-segmented-item {
+    font-size: 12px;
+    color: #27272A;
+}

@@ -102,6 +102,7 @@ export default {
                 'action': '0px 1.143px 2.286px 0px rgba(9, 9, 11, 0.05)',
                 'footer': '0px 2px 34.6px 0px rgba(9, 9, 11, 0.05)',
                 'button': '0 -3px 0 0 rgba(93, 93, 93, 0.04) inset, 0 1px 2px 0 rgba(9, 9, 11, 0.05)',
+                'sidebar': '0 -1px 22.3px 0 rgba(251, 117, 54, 0)'
             }
         },
         fontSize: {
