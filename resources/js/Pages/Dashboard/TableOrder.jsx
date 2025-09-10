@@ -4,7 +4,6 @@ import { Circle, Group, Image, Layer, Line, Rect, Stage, Text } from "react-konv
 import { Spin } from "antd";
 
 axios.defaults.withCredentials = true; // cookie auth
-axios.defaults.baseURL = "http://127.0.0.1:8005";
 
 export default function TableOrder() {
 

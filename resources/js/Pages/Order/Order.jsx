@@ -11,11 +11,9 @@ export default function Order({ table }) {
                 <div className="py-5 px-4 flex flex-row gap-5 items-center border-b border-neutral-100">
                     <div className="text-neutral-800 text-lg font-bold w-full">New Order</div>
                     <div className="flex items-center gap-3">
-                        <div>
-                            <Button variant="white" size="md" iconOnly pill>
-                                <DeleteIcon />
-                            </Button>
-                        </div>
+                        <Button variant="white" size="md" iconOnly pill>
+                            <DeleteIcon className='w-4 h-4' />
+                        </Button>
                         <div></div>
                     </div>
                 </div>
@@ -39,8 +37,8 @@ export default function Order({ table }) {
                         <div className=" uppercase text-xs text-neutral-400">pax: {table.pax}</div>
                     </div>
                     <div className="flex gap-3 items-center">
-                        <Button size="md" variant="white">Release</Button>
-                        <Button size="md" variant="black" className="text-nowrap">Go Back</Button>
+                        <Button size="sm" variant="white" className="h-11 box-border">Release</Button>
+                        <Button size="sm" variant="black" className="text-nowrap h-11 box-border">Go Back</Button>
                     </div>
                 </div>
                 <div></div>
