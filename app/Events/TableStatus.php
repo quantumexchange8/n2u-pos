@@ -37,7 +37,7 @@ class TableStatus implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return new Channel('floor-tables');
+        return new PrivateChannel('floor-tables');
     }
 
     public function broadcastAs()

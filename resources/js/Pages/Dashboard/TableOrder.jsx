@@ -90,6 +90,8 @@ export default function TableOrder() {
 
         setSelectedId(tableId.table_id);
         setSelectedTable(selectedTable)
+
+        window.location.href = `/order?table_id=${selectedTable.table_id}&table_layout_id=${selectedTable.table_layout_id}`
         // if (mergeMode) {
         //     setSelectedIds(prev =>
         //         prev.includes(tableId.table_id)
@@ -110,7 +112,7 @@ export default function TableOrder() {
 
     useEffect(() => {
         if (window.Echo) {
-            window.Echo.channel('floor-tables')
+            window.Echo.private('floor-tables')
             .listen('.TableStatus', (e) => {
                 const updatedTable = e.tables; // correct property
 
