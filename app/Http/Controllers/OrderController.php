@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\FloorTable;
+use App\Models\Tenant\FloorTable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 

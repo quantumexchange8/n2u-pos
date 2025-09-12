@@ -71,6 +71,77 @@ const DeleteIcon = ({color, className, ...rest}) => {
     );
 }
 
+const SearchIcon = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M13.25 13L10.35 10.1M11.9167 6.33333C11.9167 9.27885 9.52885 11.6667 6.58333 11.6667C3.63781 11.6667 1.25 9.27885 1.25 6.33333C1.25 3.38781 3.63781 1 6.58333 1C9.52885 1 11.9167 3.38781 11.9167 6.33333Z" stroke="#18181B" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    );
+}
+
+const BackIcon = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M2.5 7.5013H13.75C15.8211 7.5013 17.5 9.18023 17.5 11.2513C17.5 13.3224 15.8211 15.0013 13.75 15.0013H10M2.5 7.5013L5.83333 4.16797M2.5 7.5013L5.83333 10.8346" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    );
+}
+
+const XIcon = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <g filter="url(#filter0_d_1605_11809)">
+                <rect x="2" y="1" width="28" height="28" rx="14" fill="white"/>
+                <rect x="2.58333" y="1.58333" width="26.8333" height="26.8333" rx="13.4167" stroke="#D4D4D8" strokeWidth="1.16667"/>
+                <path d="M20 11L12 19M12 11L20 19" stroke="#18181B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </g>
+            <defs>
+                <filter id="filter0_d_1605_11809" x="0" y="0" width="32" height="32" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dy="1"/>
+                <feGaussianBlur stdDeviation="1"/>
+                <feComposite in2="hardAlpha" operator="out"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0.0352941 0 0 0 0 0.0352941 0 0 0 0 0.0431373 0 0 0 0.05 0"/>
+                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1605_11809"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1605_11809" result="shape"/>
+                </filter>
+            </defs>
+        </svg>
+    );
+}
+
+const DiscountIcon = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <g clipPath="url(#clip0_5062_18965)">
+                <path d="M7.50033 7.5013H7.50866M12.5003 12.5013H12.5087M13.3337 6.66797L6.66699 13.3346M6.1118 3.18355C6.78166 3.13009 7.41759 2.86668 7.92905 2.43082C9.1226 1.41369 10.8781 1.41369 12.0716 2.43082C12.5831 2.86668 13.219 3.13009 13.8889 3.18355C15.452 3.30829 16.6933 4.54959 16.8181 6.11278C16.8715 6.78264 17.1349 7.41856 17.5708 7.93003C18.5879 9.12357 18.5879 10.879 17.5708 12.0726C17.1349 12.584 16.8715 13.22 16.8181 13.8898C16.6933 15.453 15.452 16.6943 13.8889 16.8191C13.219 16.8725 12.5831 17.1359 12.0716 17.5718C10.8781 18.5889 9.1226 18.5889 7.92905 17.5718C7.41759 17.1359 6.78166 16.8725 6.1118 16.8191C4.54861 16.6943 3.30731 15.453 3.18257 13.8898C3.12912 13.22 2.86571 12.584 2.42984 12.0726C1.41271 10.879 1.41271 9.12357 2.42984 7.93003C2.86571 7.41856 3.12912 6.78264 3.18257 6.11278C3.30731 4.54959 4.54861 3.30829 6.1118 3.18355ZM7.91699 7.5013C7.91699 7.73142 7.73044 7.91797 7.50033 7.91797C7.27021 7.91797 7.08366 7.73142 7.08366 7.5013C7.08366 7.27118 7.27021 7.08464 7.50033 7.08464C7.73044 7.08464 7.91699 7.27118 7.91699 7.5013ZM12.917 12.5013C12.917 12.7314 12.7304 12.918 12.5003 12.918C12.2702 12.918 12.0837 12.7314 12.0837 12.5013C12.0837 12.2712 12.2702 12.0846 12.5003 12.0846C12.7304 12.0846 12.917 12.2712 12.917 12.5013Z" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </g>
+            <defs>
+                <clipPath id="clip0_5062_18965">
+                <rect width="20" height="20" fill="white"/>
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
+
+const MinusIcon = ({ className }) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M6 12H18" stroke="currentColor" strokeWidth="1.85164" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    );
+}
+
+const PlusIcon = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    );
+}
+
 export {
     ReturnIcon,
     DashboardIcon,
@@ -80,4 +151,10 @@ export {
     IventoryIcon,
     NotificationIcon,
     DeleteIcon,
+    SearchIcon,
+    BackIcon,
+    XIcon,
+    DiscountIcon,
+    MinusIcon,
+    PlusIcon,
 }

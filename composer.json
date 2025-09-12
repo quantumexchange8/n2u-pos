@@ -11,7 +11,9 @@
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
+        "league/flysystem-aws-s3-v3": "^3.29",
         "opcodesio/log-viewer": "^3.19",
+        "spatie/laravel-medialibrary": "^11.14",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {

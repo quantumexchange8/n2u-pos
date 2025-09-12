@@ -1,16 +1,21 @@
 import {
+    CloseButton,
     Dialog,
     DialogPanel,
+    DialogTitle,
     Transition,
     TransitionChild,
 } from '@headlessui/react';
+import { XIcon } from './Outline';
 
 export default function Modal({
     children,
     show = false,
+    showtitle = true,
     maxWidth = '2xl',
     closeable = true,
     onClose = () => {},
+    title,
 }) {
     const close = () => {
         if (closeable) {
@@ -56,7 +61,16 @@ export default function Modal({
                     <DialogPanel
                         className={`mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full ${maxWidthClass}`}
                     >
-                        {children}
+                        <DialogTitle className={`${showtitle ? 'flex' : 'hidden'} w-full justify-between items-center py-4 px-5`}>
+                            <div className='text-gray-950 text-lg font-semibold'>{title}</div>
+                            <CloseButton onClick={close}>
+                                <XIcon />
+                            </CloseButton>
+                        </DialogTitle>
+
+                        <div className="flex-1 overflow-y-auto">
+                            {children}
+                        </div>
                     </DialogPanel>
                 </TransitionChild>
             </Dialog>

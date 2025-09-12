@@ -29,6 +29,7 @@
         "i18next-http-backend": "^3.0.2",
         "react-hot-toast": "^2.6.0",
         "react-i18next": "^15.7.3",
+        "react-infinite-scroll-component": "^6.1.0",
         "react-konva": "^18.2.12"
     }
 }

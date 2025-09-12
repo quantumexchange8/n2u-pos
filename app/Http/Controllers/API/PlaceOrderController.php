@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Events\TableStatus;
 use App\Http\Controllers\Controller;
-use App\Models\FloorTable;
+use App\Models\Tenant\FloorTable;
 use Illuminate\Http\Request;
 
 class PlaceOrderController extends Controller

@@ -33,7 +33,7 @@ export default function TableOrder() {
     const fetchfloor = async () => {
         try {
 
-            const response = await axios.get('/api/getFloors');
+            const response = await axios.get('/api/floor_table_layout/getFloors');
 
             setGetFloors(response.data.floors);
             
@@ -46,7 +46,7 @@ export default function TableOrder() {
         setIsLoading(true);
         try {
             
-            const response = await axios.get('/api/getFloorPlans', {
+            const response = await axios.get('/api/floor_table_layout/getFloorPlans', {
                 params: { selectedFloor }
             })
 

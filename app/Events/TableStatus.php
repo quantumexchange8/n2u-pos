@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\FloorTable;
+use App\Models\Tenant\FloorTable;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;

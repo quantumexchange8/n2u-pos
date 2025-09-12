@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\FloorTable;
-use App\Models\TableLayout;
+use App\Models\Tenant\FloorTable;
+use App\Models\Tenant\TableLayout;
 use Illuminate\Http\Request;
 
 class TableLayoutController extends Controller

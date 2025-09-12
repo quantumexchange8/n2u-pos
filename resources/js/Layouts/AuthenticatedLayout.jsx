@@ -14,7 +14,7 @@ export default function AuthenticatedLayout({ header, children }) {
         useState(false);
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-white">
             <Sidebar />
             <div className={`min-h-screen flex flex-col ml-[88px]`}>
                 <Navbar header={header} user={user} showingNavigationDropdown={showingNavigationDropdown} />
