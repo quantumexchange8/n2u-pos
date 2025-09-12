@@ -185,7 +185,8 @@ export default function Dashboard({ checkShift }) {
                 show={isStartingCashOpen}
                 onClose={closeStartingCash}
                 title='Start Cash'
-                maxWidth='lg'
+                maxWidth='sm'
+                maxHeight='sm'
             >
                 <div className='py-3 px-4 flex flex-col gap-3'>
                     <div className='flex flex-col gap-1'>
@@ -209,7 +210,7 @@ export default function Dashboard({ checkShift }) {
                         show={openNumpad}
                         onClose={closeNumpad}
                         showtitle={false}
-                        maxWidth='lg'
+                        maxWidth='sm'
                     >
                         <Numpad 
                             value={data.cash} 

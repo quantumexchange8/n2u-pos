@@ -73,7 +73,7 @@ const DeleteIcon = ({color, className, ...rest}) => {
 
 const SearchIcon = ({color, className, ...rest}) => {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <svg xmlns="http://www.w3.org/2000/svg" className={className} width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M13.25 13L10.35 10.1M11.9167 6.33333C11.9167 9.27885 9.52885 11.6667 6.58333 11.6667C3.63781 11.6667 1.25 9.27885 1.25 6.33333C1.25 3.38781 3.63781 1 6.58333 1C9.52885 1 11.9167 3.38781 11.9167 6.33333Z" stroke="#18181B" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
     );
@@ -142,6 +142,111 @@ const PlusIcon = ({color, className, ...rest}) => {
     );
 }
 
+const PaxIcon = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" className={className} width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M13.3346 2.8898C14.5694 3.50343 15.418 4.77762 15.418 6.25C15.418 7.72238 14.5694 8.99657 13.3346 9.6102M15.0013 13.972C16.2608 14.5419 17.3951 15.4708 18.3346 16.6667M1.66797 16.6667C3.29004 14.6021 5.49228 13.3333 7.91797 13.3333C10.3437 13.3333 12.5459 14.6021 14.168 16.6667M11.668 6.25C11.668 8.32107 9.98904 10 7.91797 10C5.8469 10 4.16797 8.32107 4.16797 6.25C4.16797 4.17893 5.8469 2.5 7.91797 2.5C9.98904 2.5 11.668 4.17893 11.668 6.25Z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    );
+}
+
+const ToastSuccessIcon = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="16" fill="#CEFAB1"/>
+            <path d="M14.6 20.6L21.65 13.55L20.25 12.15L14.6 17.8L11.75 14.95L10.35 16.35L14.6 20.6ZM16 26C14.6167 26 13.3167 25.7373 12.1 25.212C10.8833 24.6873 9.825 23.975 8.925 23.075C8.025 22.175 7.31267 21.1167 6.788 19.9C6.26267 18.6833 6 17.3833 6 16C6 14.6167 6.26267 13.3167 6.788 12.1C7.31267 10.8833 8.025 9.825 8.925 8.925C9.825 8.025 10.8833 7.31233 12.1 6.787C13.3167 6.26233 14.6167 6 16 6C17.3833 6 18.6833 6.26233 19.9 6.787C21.1167 7.31233 22.175 8.025 23.075 8.925C23.975 9.825 24.6873 10.8833 25.212 12.1C25.7373 13.3167 26 14.6167 26 16C26 17.3833 25.7373 18.6833 25.212 19.9C24.6873 21.1167 23.975 22.175 23.075 23.075C22.175 23.975 21.1167 24.6873 19.9 25.212C18.6833 25.7373 17.3833 26 16 26Z" fill="#52CE39"/>
+        </svg>
+    );
+}
+
+const ToastErrorIcon = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="16" fill="#FEC5AE"/>
+            <path d="M12.4 21L16 17.4L19.6 21L21 19.6L17.4 16L21 12.4L19.6 11L16 14.6L12.4 11L11 12.4L14.6 16L11 19.6L12.4 21ZM16 26C14.6167 26 13.3167 25.7373 12.1 25.212C10.8833 24.6873 9.825 23.975 8.925 23.075C8.025 22.175 7.31267 21.1167 6.788 19.9C6.26267 18.6833 6 17.3833 6 16C6 14.6167 6.26267 13.3167 6.788 12.1C7.31267 10.8833 8.025 9.825 8.925 8.925C9.825 8.025 10.8833 7.31233 12.1 6.787C13.3167 6.26233 14.6167 6 16 6C17.3833 6 18.6833 6.26233 19.9 6.787C21.1167 7.31233 22.175 8.025 23.075 8.925C23.975 9.825 24.6873 10.8833 25.212 12.1C25.7373 13.3167 26 14.6167 26 16C26 17.3833 25.7373 18.6833 25.212 19.9C24.6873 21.1167 23.975 22.175 23.075 23.075C22.175 23.975 21.1167 24.6873 19.9 25.212C18.6833 25.7373 17.3833 26 16 26Z" fill="#F93D36"/>
+        </svg>
+    );
+}
+
+const ToastInfoIcon = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="16" fill="#9FE1FF"/>
+            <path d="M16 26C10.48 26 6 21.52 6 16C6 10.48 10.48 6 16 6C21.52 6 26 10.48 26 16C26 21.52 21.52 26 16 26ZM17 11H15V13H17V11ZM17 15H15V21H17V15Z" fill="#1190FF"/>
+        </svg>
+    );
+}
+
+const ToastWarningIcon = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="16" fill="#FFF699"/>
+            <path d="M16 6C10.48 6 6 10.48 6 16C6 21.52 10.48 26 16 26C21.52 26 26 21.52 26 16C26 10.48 21.52 6 16 6ZM17 21H15V19H17V21ZM17 17H15V11H17V17Z" fill="#FFE100"/>
+        </svg>
+    );
+}
+
+const MoreActionIcon = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" className={className} width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1.73828" y="2.26172" width="4.66667" height="4.66667" stroke="currentColor" strokeLinecap="square"/>
+            <rect x="9.75781" y="1.73828" width="4.66667" height="4.66667" transform="rotate(15 9.75781 1.73828)" stroke="currentColor" strokeLinecap="square"/>
+            <rect x="1.73828" y="9.59375" width="4.66667" height="4.66667" stroke="currentColor" strokeLinecap="square"/>
+            <rect x="9.07031" y="9.59375" width="4.66667" height="4.66667" stroke="currentColor" strokeLinecap="square"/>
+        </svg>
+    ); 
+}
+
+const UserIcon = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="19" viewBox="0 0 13 16" fill="none">
+            <path d="M11.7344 14.5C11.7344 13.5405 11.7337 12.4983 11.6153 12.108C11.3487 11.2291 10.6609 10.5413 9.78203 10.2747C9.39168 10.1562 8.91196 10.1562 7.95252 10.1562H4.51509C3.55565 10.1562 3.07593 10.1562 2.68558 10.2747C1.80669 10.5413 1.11892 11.2291 0.852311 12.108C0.733898 12.4983 0.734375 13.5405 0.734375 14.5M9.3275 4.65625C9.3275 6.36488 7.94241 7.75 6.23381 7.75C4.5252 7.75 3.14011 6.36488 3.14011 4.65625C3.14011 2.94762 4.5252 1.5625 6.23381 1.5625C7.94241 1.5625 9.3275 2.94762 9.3275 4.65625Z" stroke="#52525B" strokeWidth="1.39" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    ); 
+}
+
+const VoucherIcon = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" className={className} width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M8.33268 6.66732V5.83398M8.33268 10.4173V9.58398M8.33268 14.1673V13.334M4.33268 3.33398H15.666C16.5994 3.33398 17.0661 3.33398 17.4227 3.51564C17.7363 3.67543 17.9912 3.9304 18.151 4.244C18.3327 4.60052 18.3327 5.06723 18.3327 6.00065V7.08398C16.7219 7.08398 15.416 8.38982 15.416 10.0007C15.416 11.6115 16.7219 12.9173 18.3327 12.9173V14.0007C18.3327 14.9341 18.3327 15.4008 18.151 15.7573C17.9912 16.0709 17.7363 16.3259 17.4227 16.4857C17.0661 16.6673 16.5994 16.6673 15.666 16.6673H4.33268C3.39926 16.6673 2.93255 16.6673 2.57603 16.4857C2.26243 16.3259 2.00746 16.0709 1.84767 15.7573C1.66602 15.4008 1.66602 14.9341 1.66602 14.0007V12.9173C3.27685 12.9173 4.58268 11.6115 4.58268 10.0007C4.58268 8.38982 3.27685 7.08398 1.66602 7.08398V6.00065C1.66602 5.06723 1.66602 4.60052 1.84767 4.244C2.00746 3.9304 2.26243 3.67543 2.57603 3.51564C2.93255 3.33398 3.39926 3.33398 4.33268 3.33398Z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    ); 
+}
+
+const XIcon2 = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M9 1L1 9M1 1L9 9" stroke="#18181B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    ); 
+}
+
+const ContactIcon = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 256 256" id="Phone">
+            <rect width="256" height="256" fill="none"></rect>
+            <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="8" d="M92.47629,124.81528a84.34782,84.34782,0,0,0,39.05334,38.8759,7.92754,7.92754,0,0,0,7.8287-.59231L164.394,146.40453a8,8,0,0,1,7.58966-.69723l46.837,20.073A7.97345,7.97345,0,0,1,223.619,174.077,48.00882,48.00882,0,0,1,176,216,136,136,0,0,1,40,80,48.00882,48.00882,0,0,1,81.923,32.381a7.97345,7.97345,0,0,1,8.29668,4.79823L110.31019,84.0571a8,8,0,0,1-.65931,7.53226L93.01449,117.00909A7.9287,7.9287,0,0,0,92.47629,124.81528Z" className="colorStroke000000 svgStroke"></path>
+        </svg>
+    ); 
+}
+
+const QrCode = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 256 256" id="QrCode">
+            <rect width="256" height="256" fill="none"></rect>
+            <rect width="64" height="64" x="48.002" y="48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16" rx="8" className="colorStroke000000 svgStroke"></rect>
+            <rect width="64" height="64" x="48.002" y="144" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16" rx="8" className="colorStroke000000 svgStroke"></rect>
+            <rect width="64" height="64" x="144.002" y="48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16" rx="8" className="colorStroke000000 svgStroke"></rect>
+            <line x1="144.002" x2="144.002" y1="144" y2="176" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16" className="colorStroke000000 svgStroke"></line>
+            <polyline fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16" points="144.002 208 176.002 208 176.002 144"></polyline>
+            <line x1="176.002" x2="208.002" y1="160" y2="160" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16" className="colorStroke000000 svgStroke"></line>
+            <line x1="208.002" x2="208.002" y1="192" y2="208" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16" className="colorStroke000000 svgStroke"></line>
+        </svg>
+    ); 
+}
+
+
+
 export {
     ReturnIcon,
     DashboardIcon,
@@ -157,4 +262,15 @@ export {
     DiscountIcon,
     MinusIcon,
     PlusIcon,
+    PaxIcon,
+    ToastSuccessIcon,
+    ToastErrorIcon,
+    ToastInfoIcon,
+    ToastWarningIcon,
+    MoreActionIcon,
+    UserIcon,
+    VoucherIcon,
+    XIcon2,
+    ContactIcon,
+    QrCode,
 }

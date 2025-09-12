@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -20,4 +21,9 @@ class FloorTable extends Model
         'in_use_color',
         'reserved_color',
     ];
+
+    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Order::class, 'current_order_id', 'id');
+    }
 }

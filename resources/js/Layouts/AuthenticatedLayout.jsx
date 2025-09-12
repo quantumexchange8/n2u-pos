@@ -6,6 +6,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
+import { CustomToaster } from '@/Components/CustomToaster';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
@@ -15,6 +16,9 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <div className="min-h-screen bg-white">
+            
+            <CustomToaster />
+
             <Sidebar />
             <div className={`min-h-screen flex flex-col ml-[88px]`}>
                 <Navbar header={header} user={user} showingNavigationDropdown={showingNavigationDropdown} />

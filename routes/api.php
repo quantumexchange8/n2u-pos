@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\MemberController;
 use App\Http\Controllers\API\PlaceOrderController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ShiftController;
@@ -22,6 +23,13 @@ Route::controller(AuthController::class)->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/checkShift', [ShiftController::class, 'checkShift']);
+
+    /**
+     * ==============================
+     *          Member
+     * ==============================
+    */
+    Route::get('/getCustomer', [MemberController::class, 'getCustomer']);
 
     /**
      * ==============================
@@ -62,8 +70,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/getProducts', [ProductController::class, 'getProducts']);
     });
 
-    
+    /**
+     * ==============================
+     *    Open table & place order
+     * ==============================
+    */
+    Route::post('/update-table', [PlaceOrderController::class, 'updateTable']);
+    Route::post('/place-order', [PlaceOrderController::class, 'placeOrder']);
+    Route::post('/update-order-pax', [PlaceOrderController::class, 'updateOrderPax']);
+    Route::post('/add-customer-to-order', [PlaceOrderController::class, 'addCustomerToOrder']);
 
     
-    Route::post('/place-order', [PlaceOrderController::class, 'placeOrder']);
+    
+    
 });

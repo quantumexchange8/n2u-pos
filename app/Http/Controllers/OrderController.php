@@ -13,6 +13,7 @@ class OrderController extends Controller
 
         $table = FloorTable::where('table_id', $request->table_id)
             ->where('table_layout_id', $request->table_layout_id)
+            ->with(['order.user'])
             ->first();
 
 

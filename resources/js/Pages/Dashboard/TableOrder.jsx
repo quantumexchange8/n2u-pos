@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { Circle, Group, Image, Layer, Line, Rect, Stage, Text } from "react-konva";
 import { Spin } from "antd";
+import { router } from "@inertiajs/react";
 
 axios.defaults.withCredentials = true; // cookie auth
 
@@ -83,14 +84,28 @@ export default function TableOrder() {
 
     const tableColorState = getFloors?.find(item => item.id === selectedFloor);
 
-    const handleSelect = (tableId, e) => {
+    const handleSelect = async (tableId, e) => {
 
         const selectedTable = getTables?.find(table => table.table_id === tableId.table_id);
 
         setSelectedId(tableId.table_id);
         setSelectedTable(selectedTable)
 
-        window.location.href = `/order?table_id=${selectedTable.table_id}&table_layout_id=${selectedTable.table_layout_id}`
+        try {
+            
+            const response = await axios.post('/api/update-table', {
+                table_id: selectedTable.table_id,
+                table_layout_id: selectedTable.table_layout_id,
+            })
+
+            // go to order page with inertia instead of hard reload
+            router.visit(`/order?table_id=${selectedTable.table_id}&table_layout_id=${selectedTable.table_layout_id}`);
+
+        } catch (error) {
+            console.error('error', error);
+
+        }
+        
         // if (mergeMode) {
         //     setSelectedIds(prev =>
         //         prev.includes(tableId.table_id)
