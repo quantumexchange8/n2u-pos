@@ -15,6 +15,9 @@ export default {
             fontFamily: {
                 sans: ['DM Sans', ...defaultTheme.fontFamily.sans],
             },
+            backgroundImage: {
+                'member-card': "url('/assets/images/member-card.png')",
+            },
             colors: {
                 primary: {
                     25: '#FFF8EE',

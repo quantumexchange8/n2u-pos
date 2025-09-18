@@ -10,7 +10,7 @@ function AntThemeCustomizationProvider({ children }) {
                 hashed: false,
                 token: {
                     colorPrimary: '#F26522', // primary color gray-950
-                    borderRadius: 2,
+                    borderRadius: 4,
                     fontFamily: 'DM Sans, sans-serif',
                 },
                 components: {

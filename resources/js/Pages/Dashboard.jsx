@@ -24,6 +24,18 @@ export default function Dashboard({ checkShift }) {
     const [shiftDetails, setShiftDetails] = useState(null);
     const [currentTime, setCurrentTime] = useState(dayjs().format("HH:mm:ss"));
 
+    const { data, setData, post, processing, errors, reset } = useForm({
+        cash: '0.00',
+    });
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(dayjs().format("HH:mm:ss"));
+        }, 1000);
+
+        return () => clearInterval(timer); // cleanup on unmount
+    }, []);
+
     const openShift = async () => {
         try {
             
@@ -37,11 +49,6 @@ export default function Dashboard({ checkShift }) {
             console.error('error', error);
         }
     }
-
-    const { data, setData, post, processing, errors, reset } = useForm({
-        cash: '0.00',
-    });
-
 
     const closeStartingCash = () => {
         setIsStartingCashOpen(false);
@@ -67,7 +74,7 @@ export default function Dashboard({ checkShift }) {
         } catch (error) {
             console.error('error', error)
         } finally {
-            setIsLoading(true)
+            setIsLoading(false)
         }
     }
 
@@ -109,15 +116,6 @@ export default function Dashboard({ checkShift }) {
             </div>
         );
     }
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(dayjs().format("HH:mm:ss"));
-        }, 1000);
-
-        return () => clearInterval(timer); // cleanup on unmount
-    }, []);
-
 
     return (
         <AuthenticatedLayout>

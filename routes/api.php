@@ -30,7 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
      * ==============================
     */
     Route::get('/getCustomer', [MemberController::class, 'getCustomer']);
-
+    Route::get('/getCustomerDetails', [MemberController::class, 'getCustomerDetails']);
+    Route::post('/unassigned-customer', [MemberController::class, 'unassignedCustomer']);
+    
     /**
      * ==============================
      *          Open Shift
@@ -80,7 +82,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/update-order-pax', [PlaceOrderController::class, 'updateOrderPax']);
     Route::post('/add-customer-to-order', [PlaceOrderController::class, 'addCustomerToOrder']);
 
-    
-    
+    Route::post('/place-order-items', [PlaceOrderController::class, 'placeOrderItem']);
+    // get order history
+    Route::get('/getOrderHistory', [PlaceOrderController::class, 'getOrderHistory']);
+    Route::post('/serve-order-item', [PlaceOrderController::class, 'serveOrderItem']);
+    Route::post('/void-order-item', [PlaceOrderController::class, 'voidOrderItem']);
     
 });

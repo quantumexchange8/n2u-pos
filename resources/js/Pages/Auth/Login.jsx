@@ -2,17 +2,20 @@ import Button from '@/Components/Button';
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
+import Numlock from '@/Components/Numlock';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import axios from 'axios';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function Login({ status, canResetPassword }) {
 
     const { t, i18n } = useTranslation(); 
     const year = new Date().getFullYear();
+    const [openNumLock, setOpenNumLock] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         uid: '',
@@ -21,11 +24,10 @@ export default function Login({ status, canResetPassword }) {
     });
 
     const submit = async (e) => {
-        e.preventDefault();
-
         post(route('login'), {
             onFinish: () => reset('password'),
         });
+        
     };
 
     return (
@@ -75,7 +77,8 @@ export default function Login({ status, canResetPassword }) {
                                         value={data.password}
                                         className="mt-1 block w-full"
                                         autoComplete="current-password"
-                                        onChange={(e) => setData('password', e.target.value)}
+                                        readOnly
+                                        onClick={() => setOpenNumLock(true)}
                                     />
                                     <div>
                                         <InputError message={errors.password} />
@@ -94,6 +97,17 @@ export default function Login({ status, canResetPassword }) {
                     </div>
                 </form>
             </div>
+
+            {/* numlock */}
+            <Numlock 
+                show={openNumLock}
+                value={data.password} 
+                onChange={(val) => setData("password", val)} 
+                onClose={() => setOpenNumLock(false)}
+                error={errors}
+                onSubmit={submit}
+             />
+
         </GuestLayout>
     );
 }

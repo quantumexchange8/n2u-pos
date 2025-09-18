@@ -21,6 +21,15 @@ class ProductController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
+        // 🔎 filter by product name or item_code
+        if ($request->filled('filterProduct')) {
+            $filter = $request->get('filterProduct');
+            $query->where(function($q) use ($filter) {
+                $q->where('name', 'like', "%{$filter}%")
+                ->orWhere('item_code', 'like', "%{$filter}%");
+            });
+        }
+
         $limit = $request->get('limit', 12);
 
         $products = $query->paginate($limit);

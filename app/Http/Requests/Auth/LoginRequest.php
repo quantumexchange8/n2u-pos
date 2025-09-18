@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -41,13 +43,19 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('uid', 'password'), $this->boolean('remember'))) {
+        $user = User::where('uid', $this->input('uid'))->first();
+
+        Log::info('user' . $user . 'password' . $this->input('password'));
+
+        if (! $user || $user->pin !== $this->input('password')) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'uid' => trans('auth.failed'),
+                'email' => trans('auth.failed'),
             ]);
         }
+
+        Auth::login($user, $this->boolean('remember'));
 
         // if (Auth::user()->role === 'member') {
         //     Auth::logout();
