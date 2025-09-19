@@ -7,6 +7,7 @@ use App\Http\Controllers\API\PlaceOrderController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ShiftController;
 use App\Http\Controllers\API\TableLayoutController;
+use App\Http\Controllers\API\TableLockController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -77,6 +78,11 @@ Route::middleware('auth:sanctum')->group(function () {
      *    Open table & place order
      * ==============================
     */
+
+    // Lock & Unlock Table
+    Route::post('/tables/{table}/lock', [TableLockController::class, 'lock']);
+    Route::post('/tables/{table}/unlock', [TableLockController::class, 'unlock']);
+    
     Route::post('/update-table', [PlaceOrderController::class, 'updateTable']);
     Route::post('/place-order', [PlaceOrderController::class, 'placeOrder']);
     Route::post('/update-order-pax', [PlaceOrderController::class, 'updateOrderPax']);

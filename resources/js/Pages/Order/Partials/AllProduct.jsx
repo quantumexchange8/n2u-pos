@@ -24,6 +24,7 @@ export default function AllProduct({
     selectProdHistory,
     setSelectProdHistory,
     fetchOrderHistory,
+    requiredDisable,
 }) {
 
     const { TextArea } = Input;
@@ -39,6 +40,7 @@ export default function AllProduct({
     const [openNumpad, setOpenNumpad] = useState(false);
     const [pinNo, setPinNo] = useState('');
     const [filterProduct, setFilterProduct] = useState('');
+    const [pinError, setPinError] = useState('');
 
     const fetchCategories = async () => {
         setIsCatagoryLoading(true)
@@ -205,6 +207,7 @@ export default function AllProduct({
 
         } catch (error) {
             console.error('error', error);
+            setPinError(error.response.data.message);
         }
     }
 
@@ -220,7 +223,7 @@ export default function AllProduct({
                                     <DiscountIcon />
                                     <span>Apply Discount</span>
                                 </Button>
-                                <Button variant="white" size="md" className="flex items-center gap-2" onClick={() => setSelectedProduct(null)}>
+                                <Button variant="white" size="md" className="flex items-center gap-2" disabled={requiredDisable} onClick={() => setSelectedProduct(null)}>
                                     <ReturnIcon />
                                     <span>Back to Order</span>
                                 </Button>
@@ -302,16 +305,22 @@ export default function AllProduct({
                                             <span className="text-neutral-800 text-base font-bold">
                                                 {modifier.modifier_group.display_name}
                                             </span>
-                                            <span
-                                                className={`${
-                                                modifier.modifier_group.group_type === "required"
-                                                    ? "text-error-500"
-                                                    : "text-neutral-500"
-                                                } text-xs font-medium`}
-                                            >
-                                                min {modifier.modifier_group.min_selection} / max{" "}
-                                                {modifier.modifier_group.max_selection}
-                                            </span>
+                                            {
+                                                modifier.modifier_group.group_type === "required" ? (
+                                                    <span
+                                                        className={`text-error-500 text-xs font-medium`}
+                                                    >
+                                                        Required *
+                                                    </span>
+                                                ) : (
+                                                    <span
+                                                        className={`text-neutral-400 text-xs font-medium`}
+                                                    >
+                                                        Optional
+                                                    </span>
+                                                )
+                                            }
+                                            
                                             </div>
 
                                             {/* If max = 1 → Radio group */}
@@ -623,58 +632,54 @@ export default function AllProduct({
                             <div className="w-full">
                                 <input type="text" value={filterProduct} onChange={(e) => setFilterProduct(e.target.value)} placeholder="Search..." className="border-none focus:ring-0 text-neutral-900 text-sm font-medium w-full" />
                             </div>
-                            <div className="absolute right-10 translate-x-1/2" onClick={() => setFilterProduct('')} >
-                                <XIcon />
-                            </div>
-                        </div>
-                        <div className="flex flex-row max-h-[85vh]">
                             {
-                                !isProductLoading ? (
-                                    <div
-                                        id="scrollableDiv"
-                                        style={{
-                                            height: '83vh',
-                                            overflow: 'auto',
-                                            padding: '16px',
-                                        }}
-                                        className="w-3/4 "
-                                    >
-                                        <InfiniteScroll
-                                            dataLength={isProductLoading ? 0 : (getProducts?.length || 0)}
-                                            next={loadMoreData}
-                                            hasMore={hasMore}
-                                            loader={<Spin style={{ display: "block", margin: "16px auto" }} />}
-                                            endMessage={
-                                                <div className="font-bold" style={{ textAlign: "center", padding: "12px", color: "#888" }}>
-                                                    🎉 You’ve reached the end !
-                                                </div>
-                                            }
-                                            scrollableTarget="scrollableDiv"
-                                        >
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {
-                                                    getProducts.map((item) => (
-                                                        <div key={item.id} className="flex flex-col gap-3 p-3 bg-white border border-neutral-50 rounded-lg shadow-sec-voucher cursor-pointer relative" onClick={() => selectProd(item)}>
-                                                            {/* <Badge count={} /> */}
-                                                            <div className="w-full h-32 bg-neutral-50 rounded flex items-center justify-center">
-                                                                <img src={item.product_image} alt="" className="h-[75px] " />
-                                                            </div>
-                                                            <div className="flex flex-col gap-2">
-                                                                <div className="truncate-2-lines text-neutral-800 text-sm font-bold">{item.item_code} - {item.name}</div>
-                                                                <div className="text-neutral-700 text-sm font-medium">RM {item.prices}</div>
-                                                            </div>
-                                                        </div>
-                                                    ))
-                                                }
-                                            </div>
-                                        </InfiniteScroll>
-                                    </div>
-                                ) : (
-                                    <div className="w-3/4 flex items-center justify-center ">
-                                        <Spin />
+                                filterProduct && (
+                                    <div className="absolute right-10 translate-x-1/2" onClick={() => setFilterProduct('')} >
+                                        <XIcon />
                                     </div>
                                 )
                             }
+                        </div>
+                        <div className="flex flex-row max-h-[85vh]">
+                            <div
+                                id="scrollableDiv"
+                                style={{
+                                    height: '83vh',
+                                    overflow: 'auto',
+                                    padding: '16px',
+                                }}
+                                className="w-3/4 "
+                            >
+                                <InfiniteScroll
+                                    dataLength={isProductLoading ? 0 : (getProducts?.length || 0)}
+                                    next={loadMoreData}
+                                    hasMore={hasMore}
+                                    loader={<Spin style={{ display: "block", margin: "16px auto" }} />}
+                                    endMessage={
+                                        <div className="font-bold" style={{ textAlign: "center", padding: "12px", color: "#888" }}>
+                                            🎉 You’ve reached the end !
+                                        </div>
+                                    }
+                                    scrollableTarget="scrollableDiv"
+                                >
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {
+                                            getProducts.map((item) => (
+                                                <div key={item.id} className="flex flex-col gap-3 p-3 bg-white border border-neutral-50 rounded-lg shadow-sec-voucher cursor-pointer relative" onClick={() => selectProd(item)}>
+                                                    {/* <Badge count={} /> */}
+                                                    <div className="w-full h-32 bg-neutral-50 rounded flex items-center justify-center">
+                                                        <img src={item.product_image} alt="" className="h-[75px] " />
+                                                    </div>
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="truncate-2-lines text-neutral-800 text-sm font-bold">{item.item_code} - {item.name}</div>
+                                                        <div className="text-neutral-700 text-sm font-medium">RM {item.prices}</div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        }
+                                    </div>
+                                </InfiniteScroll>
+                            </div>
                             
                             {
                                 !categoryLoading && getCategory ? (
@@ -751,6 +756,7 @@ export default function AllProduct({
                     onChange={(val) => setPinNo(val)} 
                     onClose={closeNumpad}
                     onSubmit={voidItem}
+                    error={pinError}
                 />
 
             </ConfirmDialog>

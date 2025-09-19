@@ -104,7 +104,7 @@ export default function Login({ status, canResetPassword }) {
                 value={data.password} 
                 onChange={(val) => setData("password", val)} 
                 onClose={() => setOpenNumLock(false)}
-                error={errors}
+                error={errors.email}
                 onSubmit={submit}
              />
 

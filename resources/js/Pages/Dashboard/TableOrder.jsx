@@ -103,7 +103,6 @@ export default function TableOrder() {
 
         } catch (error) {
             console.error('error', error);
-
         }
         
         // if (mergeMode) {
@@ -126,15 +125,41 @@ export default function TableOrder() {
 
     useEffect(() => {
         if (window.Echo) {
+            // floor tables update
             window.Echo.private('floor-tables')
-            .listen('.TableStatus', (e) => {
-                const updatedTable = e.tables; // correct property
+                .listen('.TableStatus', (e) => {
+                    const updatedTable = e.tables; // correct property
 
-                // Update that table in state
-                setGetTables((prev) =>
-                    prev.map(t => t.table_id === updatedTable.table_id ? updatedTable : t)
-                );
-            });
+                    // Update that table in state
+                    setGetTables((prev) =>
+                        prev.map(t => t.table_id === updatedTable.table_id ? updatedTable : t)
+                    );
+                });
+
+            // Locked
+            window.Echo.private('table-locked')
+                .listen('.TableLocked', (e) => {
+                    const lockedTable = e.table;
+                    setGetTables((prev) =>
+                        prev.map(t => 
+                            t.table_id === lockedTable.table_id 
+                            ? { ...t, locked: true, locked_by: lockedTable.locked_by }
+                            : t
+                        )
+                    );
+                });
+            // Unlocked
+            window.Echo.private('table-unlocked')
+                .listen('.TableUnlocked', (e) => {
+                    const unlockedTable = e.table;
+                    setGetTables((prev) =>
+                        prev.map(t => 
+                            t.table_id === unlockedTable.table_id 
+                            ? { ...t, locked: false, locked_by: null }
+                            : t
+                        )
+                    );
+                });
         }
     }, []);
 

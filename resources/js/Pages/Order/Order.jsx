@@ -15,6 +15,7 @@ import TextInput from "@/Components/TextInput";
 import ConfirmDialog from "@/Components/ConfirmDialog";
 import Unassigned from "@/Components/Illustration/Unassigned";
 
+axios.defaults.withCredentials = true;
 
 export default function Order({ table }) {
 
@@ -38,6 +39,7 @@ export default function Order({ table }) {
     const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(false);
     const [getOrderHistory, setGetOrderHistory] = useState([]);
     const [selectProdHistory, setSelectProdHistory] = useState(null);
+    const [requiredDisable, setRequiredDisabled] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         order_id: table.order.id,
@@ -218,6 +220,7 @@ export default function Order({ table }) {
             const response = await axios.post('/api/place-order-items', data)
 
             reset();
+            setSelectedProduct(null);
 
             toast.success(`Order Placed!.`, {
                 title: `Order Placed!.`,
@@ -249,15 +252,47 @@ export default function Order({ table }) {
 
     useEffect(() => {
         if (isOrderHistoryOpen) {
-            fetchOrderHistory();
+            if (window.Echo) {
+                window.Echo.private('order-histories')
+                    .listen('.OrderHistory', (e) => {
+                        if (e.orderId === table.order.id) {
+                            fetchOrderHistory(); // always refresh from backend
+                        }
+                    });
+            }
+            fetchOrderHistory(); // initial load
         }
-    }, [isOrderHistoryOpen])
+    }, [isOrderHistoryOpen]);
 
     const findOrderHistoryProd = (id) => {
         const existingProd = getOrderHistory.find((p) => p.id === id);
 
         setSelectProdHistory(existingProd);
     }
+
+    useEffect(() => {
+        let hasMissingRequired = false;
+
+        data.products.forEach((prod) => {
+            if (prod.product_modifier_group?.length > 0) {
+                prod.product_modifier_group.forEach((group) => {
+                    
+                    if (group.modifier_group.group_type === "required") {
+                        // Check if product_modifier has a selected modifier for this group
+                        const selected = prod.product_modifier.find(
+                            (m) => m.id === group.modifier_group.id
+                        );
+
+                        if (!selected || !selected.product_item_ids?.length) {
+                            hasMissingRequired = true;
+                        }
+                    }
+                });
+            }
+        });
+
+        setRequiredDisabled(hasMissingRequired);
+    }, [data.products]);
 
     return (
         <div className="w-full flex flex-row min-h-screen">
@@ -318,13 +353,13 @@ export default function Order({ table }) {
                                 <BackIcon /> <span>Back</span>
                             </Button>
                         </div>
-                        <div className="flex flex-col justify-between min-h-[96vh]">
+                        <div className="flex flex-col justify-between min-h-[80vh] overflow-y-auto">
                             {
                                 getOrderHistory.length > 0 ? (
-                                    <div className="flex flex-col ">
+                                    <div className="flex flex-col max-h-[90vh] overflow-auto ">
                                         {
                                             getOrderHistory.map((item, i) => (
-                                                <div key={i} className={`${selectProdHistory?.id === item.id ? "bg-primary-25" : "bg-white"} p-4 flex gap-4 border-b border-neutral-50 `} onClick={() => findOrderHistoryProd(item.id)}>
+                                                <div key={i} className={`${selectProdHistory?.id === item.id ? "bg-primary-25" : "bg-white"} p-4 flex gap-4 border-b border-neutral-50 `} onClick={() => findOrderHistoryProd(item.id)} >
                                                     <div className="w-10 h-10 flex items-center justify-center p-2 border border-primary-200 shadow-input rounded-xl text-primary-500 text-sm font-bold">{item.qty}</div>
                                                     <div className="flex flex-col gap-1 w-full">
                                                         <div className="flex items-center justify-between w-full">
@@ -413,50 +448,60 @@ export default function Order({ table }) {
                                     <div className="flex flex-col">
                                         {
                                             data.products.map((prod, i) => (
-                                                <div key={i} className={`${selectedProduct?.id === prod.id ? "bg-primary-25" : "bg-white"} p-4 flex gap-4 border-b border-neutral-50 `} onClick={() => findExistingProd(prod.id)} >
-                                                    <div className="w-10 h-10 flex items-center justify-center p-2 border border-primary-200 shadow-input rounded-xl text-primary-500 text-sm font-bold">{prod.quantity}</div>
-                                                    <div className="flex flex-col gap-1 w-full">
-                                                        <div className="flex items-center justify-between w-full">
-                                                            <div className="text-neutral-800 text-sm font-bold">{prod.item_code} - {prod.name}</div>
-                                                            <div>RM {prod.total_price}</div>
-                                                        </div>
-                                                        <div className="flex flex-col gap-1">
-                                                            {
-                                                                (prod.product_modifier && prod.product_modifier.length > 0) && (
-                                                                    <>
-                                                                        {
-                                                                            prod.product_modifier.map((prodModifier) => (
-                                                                                <div key={prodModifier.id}>
-                                                                                    {
-                                                                                        prodModifier.product_item_ids.length > 0 && (
-                                                                                            <>
-                                                                                                <div className="text-xs font-semibold text-neutral-600">{prodModifier.name}</div>
-                                                                                                {
-                                                                                                    prodModifier.product_item_ids.map((item) => (
-                                                                                                        <div key={item.id} className="" >
-                                                                                                            <div className="pl-2 flex items-center gap-1">
-                                                                                                                <span className="text-xs">- {item.modifier_name}</span>
-                                                                                                                <span className="text-xs text-primary-500">(+ RM{formatAmount(item.modifier_price)})</span>
+                                                <div key={i} className="flex w-full">
+                                                    {
+                                                        selectedProduct?.id === prod.id && (
+                                                            <div className="w-1 bg-primary-500 h-auto"></div>
+                                                        )
+                                                    }
+                                                    <div className={`${selectedProduct?.id === prod.id ? "bg-primary-25" : "bg-white"} p-4 flex gap-4 border-b border-neutral-50 w-full `} onClick={() => {
+                                                            if (requiredDisable) return;
+                                                            findExistingProd(prod.id)
+                                                        }} >
+                                                        <div className="w-10 h-10 flex items-center justify-center p-2 border border-primary-200 shadow-input rounded-xl text-primary-500 text-sm font-bold">{prod.quantity}</div>
+                                                        <div className="flex flex-col gap-1 w-full">
+                                                            <div className="flex items-center justify-between w-full">
+                                                                <div className="text-neutral-800 text-sm font-bold">{prod.item_code} - {prod.name}</div>
+                                                                <div>RM {prod.total_price}</div>
+                                                            </div>
+                                                            <div className="flex flex-col gap-1">
+                                                                {
+                                                                    (prod.product_modifier && prod.product_modifier.length > 0) && (
+                                                                        <>
+                                                                            {
+                                                                                prod.product_modifier.map((prodModifier) => (
+                                                                                    <div key={prodModifier.id}>
+                                                                                        {
+                                                                                            prodModifier.product_item_ids.length > 0 && (
+                                                                                                <>
+                                                                                                    <div className="text-xs font-semibold text-neutral-600">{prodModifier.name}</div>
+                                                                                                    {
+                                                                                                        prodModifier.product_item_ids.map((item) => (
+                                                                                                            <div key={item.id} className="" >
+                                                                                                                <div className="pl-2 flex items-center gap-1">
+                                                                                                                    <span className="text-xs">- {item.modifier_name}</span>
+                                                                                                                    <span className="text-xs text-primary-500">(+ RM{formatAmount(item.modifier_price)})</span>
+                                                                                                                </div>
                                                                                                             </div>
-                                                                                                        </div>
-                                                                                                    ))
-                                                                                                }
-                                                                                            </>
-                                                                                        )
-                                                                                    }
-                                                                                </div>
-                                                                            ))
-                                                                        }
-                                                                    </>
+                                                                                                        ))
+                                                                                                    }
+                                                                                                </>
+                                                                                            )
+                                                                                        }
+                                                                                    </div>
+                                                                                ))
+                                                                            }
+                                                                        </>
+                                                                    )
+                                                                }
+                                                            </div>
+                                                            {
+                                                                prod.remarks && (
+                                                                    <div className="text-xs">Remark - {prod.remarks}</div>
                                                                 )
                                                             }
+                                                            
                                                         </div>
-                                                        {
-                                                            prod.remarks && (
-                                                                <div className="text-xs">Remark - {prod.remarks}</div>
-                                                            )
-                                                        }
-                                                        
                                                     </div>
                                                 </div>
                                             ))
@@ -474,7 +519,7 @@ export default function Order({ table }) {
                                 </div>
                                 <div className="py-2 px-4 flex gap-3 items-center">
                                     <Button variant="secondary" size="md" className="w-full flex justify-center">Go to Pay</Button>
-                                    <Button size="md" className="w-full flex justify-center" onClick={placeOrder} disabled={isPlacingOrder || data.products.length == 0} >Place Order</Button>
+                                    <Button size="md" className="w-full flex justify-center" onClick={placeOrder} disabled={isPlacingOrder || data.products.length == 0 || requiredDisable} >Place Order</Button>
                                 </div>
                             </div>
                         </div>
@@ -504,6 +549,7 @@ export default function Order({ table }) {
                     selectProdHistory={selectProdHistory}
                     setSelectProdHistory={setSelectProdHistory}
                     fetchOrderHistory={fetchOrderHistory}
+                    requiredDisable={requiredDisable}
                 />
             </div>
 

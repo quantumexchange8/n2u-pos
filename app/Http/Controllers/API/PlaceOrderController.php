@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\OrderHistory;
 use App\Events\TableStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\FloorTable;
@@ -156,7 +157,7 @@ class PlaceOrderController extends Controller
                 $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item['product_id'],
-                    'type' => 'order',
+                    'type' => 'product',
                     'qty' => $item['quantity'],
                     'price' => $item['total_price'],
                     'total_price' => $item['total_price'] * $item['quantity'],
@@ -181,7 +182,9 @@ class PlaceOrderController extends Controller
                         }
                     }
                 }
-            } 
+            }
+
+            broadcast(new OrderHistory($order->id))->toOthers();
 
             return response()->json([
                 'success' => true,
@@ -210,6 +213,8 @@ class PlaceOrderController extends Controller
                         'status' => 'served'
                     ]);
 
+                    broadcast(new OrderHistory($orderitem->order_id))->toOthers();
+
                     return response()->json([
                         'success' => true,
                         'message' => 'Order item served.'
@@ -220,6 +225,8 @@ class PlaceOrderController extends Controller
                     $orderitem->update([
                         'status' => 'preparing'
                     ]);
+
+                    broadcast(new OrderHistory($orderitem->order_id))->toOthers();
 
                     return response()->json([
                         'success' => true,
@@ -256,6 +263,8 @@ class PlaceOrderController extends Controller
                     'status' => 'void',
                     'sys_remarks' => $params['sysRemark'],
                 ]);
+
+                broadcast(new OrderHistory($orderItem->order_id))->toOthers();
 
                 return response()->json([
                     'message' => 'Order item voided.'
