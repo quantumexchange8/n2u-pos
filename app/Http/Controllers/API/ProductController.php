@@ -14,7 +14,7 @@ class ProductController extends Controller
     {
 
         if ($request->category_id === 'all') {
-            $query = Product::with([
+            $query = Product::where('visibility', 'display')->with([
                 'category:id,name', 
                 'product_modifier_group.product_modifier_group_item',
                 'product_modifier_group.modifier_group',
@@ -37,8 +37,6 @@ class ProductController extends Controller
                 $query = SetMeal::with(['set_meal_item.product', 'set_meal_group.set_meal_group_item.set_meal_group_item.product']);
             }
         }
-
-        
 
         if ($request->filled('category_id') && $request->category_id !== 'all') {
             $query->where('category_id', $request->category_id);

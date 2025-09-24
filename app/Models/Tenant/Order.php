@@ -21,6 +21,11 @@ class Order extends Model
         'total',
         'remark',
         'pax',
+        'tax_rate',
+        'service_rate',
+        'rounding',
+        'service_charge',
+        'payment_status',
     ];
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo

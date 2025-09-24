@@ -20,6 +20,8 @@ class FloorTable extends Model
         'available_color',
         'in_use_color',
         'reserved_color',
+        'lock_status',
+        'locked_by',
     ];
 
     public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo

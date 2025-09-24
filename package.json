@@ -21,12 +21,14 @@
         "vite": "^5.0"
     },
     "dependencies": {
+        "@lottiefiles/react-lottie-player": "^3.6.0",
         "antd": "^5.27.3",
         "dayjs": "^1.11.18",
         "framer-motion": "^12.23.12",
         "i18next": "^25.4.2",
         "i18next-browser-languagedetector": "^8.2.0",
         "i18next-http-backend": "^3.0.2",
+        "lottie-react": "^2.4.1",
         "react-hot-toast": "^2.6.0",
         "react-i18next": "^15.7.3",
         "react-infinite-scroll-component": "^6.1.0",

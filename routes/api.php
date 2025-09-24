@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\MemberController;
+use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\PlaceOrderController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ShiftController;
@@ -84,14 +85,31 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tables/{table}/unlock', [TableLockController::class, 'unlock']);
     
     Route::post('/update-table', [PlaceOrderController::class, 'updateTable']);
+    Route::post('/return-from-order', [PlaceOrderController::class, 'returnFromOrder']);
     Route::post('/place-order', [PlaceOrderController::class, 'placeOrder']);
     Route::post('/update-order-pax', [PlaceOrderController::class, 'updateOrderPax']);
     Route::post('/add-customer-to-order', [PlaceOrderController::class, 'addCustomerToOrder']);
 
     Route::post('/place-order-items', [PlaceOrderController::class, 'placeOrderItem']);
+    Route::post('/draft-order-items', [PlaceOrderController::class, 'draftOrderItems']);
+
     // get order history
     Route::get('/getOrderHistory', [PlaceOrderController::class, 'getOrderHistory']);
     Route::post('/serve-order-item', [PlaceOrderController::class, 'serveOrderItem']);
     Route::post('/void-order-item', [PlaceOrderController::class, 'voidOrderItem']);
+    Route::post('/serve-all-item', [PlaceOrderController::class, 'serveAllItem']);
+    
+
+    /**
+     * ==============================
+     *    Payment & Checkout
+     * ==============================
+    */
+    Route::get('/getPaymentMethod', [PaymentController::class, 'getPaymentMethod']);
+    Route::get('/getOrderItems', [PaymentController::class, 'getOrderItems']);
+
+    Route::post('/make-payment', [PaymentController::class, 'makePayment']);
+    Route::post('/return-from-success', [PaymentController::class, 'returnFromSuccess']);
+    
     
 });

@@ -22,9 +22,10 @@ export default function AllProduct({
     selectedProduct,
     setSelectedProduct,
     selectProdHistory,
-    setSelectProdHistory,
     fetchOrderHistory,
     requiredDisable,
+    orderItemInComplete,
+    setDirectingLoad,
 }) {
 
     const { TextArea } = Input;
@@ -130,9 +131,22 @@ export default function AllProduct({
     const updateQuantity = (productId, change) => {
         setData("products", data.products.map((p) => {
             if (p.id === productId) {
+                const newQty = Math.max(1, p.quantity + change);
+
+                const modifierSum = (p.product_modifier || []).reduce((sum, mod) => {
+                    return (
+                        sum +
+                        mod.product_item_ids.reduce(
+                            (innerSum, item) => innerSum + parseFloat(item.modifier_price || 0),
+                            0
+                        )
+                    );
+                }, 0);
+
                 const updated = {
                     ...p,
-                    quantity: Math.max(1, p.quantity + change), // prevent below 1
+                    quantity: newQty, // prevent below 1
+                    total_price: ((newQty * parseFloat(p.prices)) + (newQty * modifierSum)).toFixed(2),
                 };
 
                 // also update selectedProduct if it's the same one
@@ -156,17 +170,35 @@ export default function AllProduct({
                 params: { 
                     order_item_id: selectProdHistory.id,
                     status: status,
+                    order_id: selectProdHistory.order_id,
                 }
             });
 
-            router.reload({ only: ['table'] });
-            fetchOrderHistory();
+            if (response.data.items_served) {
 
-            toast.success(`Order Served!.`, {
-                title: `Order Served!.`,
-                duration: 3000,
-                variant: 'variant3',
-            });
+                toast.success(`All Order Served!.`, {
+                    title: `All Order Served!.`,
+                    duration: 3000,
+                    variant: 'variant3',
+                });
+
+                setDirectingLoad(true)
+
+                router.visit('dashboard', {
+                    onFinish: () => setDirectingLoad(false) // reset after redirect done
+                });
+
+            } else {
+                router.reload({ only: ['table', 'orderItemInComplete'] });
+                fetchOrderHistory();
+    
+                toast.success(`Order Served!.`, {
+                    title: `Order Served!.`,
+                    duration: 3000,
+                    variant: 'variant3',
+                });
+            }
+
 
         } catch (error) {
             console.error('error', error);
@@ -188,6 +220,7 @@ export default function AllProduct({
                     order_item_id: selectProdHistory.id,
                     sysRemark: sysRemark,
                     pinNo: pinNo,
+                    order_id: selectProdHistory.order_id,
                 }
             });
 
@@ -326,11 +359,11 @@ export default function AllProduct({
                                             {/* If max = 1 → Radio group */}
                                             {
                                                 modifier.modifier_group.max_selection === 1 ? (
-                                                <Radio.Group
+                                                <Checkbox.Group
                                                     className="w-full"
-                                                    value={selectedItems[0]?.id || null}
+                                                    value={selectedItems.map(item => item.id) || null}
                                                 >
-                                                    <div className="grid grid-cols-4 gap-3">
+                                                    <div className="grid grid-cols-4 gap-3 w-full">
                                                     {modifier.product_modifier_group_item.map((groupItem) => {
                                                         const isSelected = selectedItems.some((item) => item.id === groupItem.id);
 
@@ -343,6 +376,18 @@ export default function AllProduct({
                                                                 : "border-neutral-100"
                                                             }`}
                                                             onClick={() => {
+                                                                let updated = [...selectedItems];
+
+                                                                if (isSelected) {
+                                                                    updated = updated.filter((item) => item.id !== groupItem.id);
+                                                                } else if (updated.length < modifier.modifier_group.max_selection) {
+                                                                    updated.push({
+                                                                    id: groupItem.id,
+                                                                    modifier_name: groupItem.modifier_name,
+                                                                    modifier_price: groupItem.modifier_price,
+                                                                    });
+                                                                }
+
                                                             setData(
                                                                 "products",
                                                                 data.products.map((p) => {
@@ -350,27 +395,24 @@ export default function AllProduct({
 
                                                                 // copy current modifiers
                                                                 const updatedModifiers = [...(p.product_modifier || [])];
+                                                                const existingIndex = updatedModifiers.findIndex((m) => m.id === modifier.modifier_group.id);
 
-                                                                const existingIndex = updatedModifiers.findIndex(
-                                                                    (m) => m.id === modifier.modifier_group.id
-                                                                );
-
-                                                                const enrichedItem = {
-                                                                    id: groupItem.id,
-                                                                    modifier_name: groupItem.modifier_name,
-                                                                    modifier_price: groupItem.modifier_price,
-                                                                };
+                                                                // const enrichedItem = {
+                                                                //     id: groupItem.id,
+                                                                //     modifier_name: groupItem.modifier_name,
+                                                                //     modifier_price: groupItem.modifier_price,
+                                                                // };
 
                                                                 if (existingIndex >= 0) {
                                                                     updatedModifiers[existingIndex] = {
-                                                                    ...updatedModifiers[existingIndex],
-                                                                    product_item_ids: [enrichedItem], // ✅ store enriched object
+                                                                        ...updatedModifiers[existingIndex],
+                                                                        product_item_ids: updated, // ✅ store enriched object
                                                                     };
                                                                 } else {
                                                                     updatedModifiers.push({
-                                                                    id: modifier.modifier_group.id,
-                                                                    name: modifier.modifier_group.display_name,
-                                                                    product_item_ids: [enrichedItem],
+                                                                        id: modifier.modifier_group.id,
+                                                                        name: modifier.modifier_group.display_name,
+                                                                        product_item_ids: updated,
                                                                     });
                                                                 }
 
@@ -385,7 +427,7 @@ export default function AllProduct({
                                                                     );
                                                                 }, 0);
 
-                                                                const totalPrice = parseFloat(p.prices) + modifierSum;
+                                                                const totalPrice = (parseFloat(p.prices) + modifierSum) * p.quantity;
 
                                                                 return {
                                                                     ...p,
@@ -397,20 +439,20 @@ export default function AllProduct({
                                                             }}
                                                         >
                                                             <div className="flex flex-col gap-1 text-left w-full">
-                                                            <div className="text-neutral-800 text-xs font-bold">
-                                                                {groupItem.modifier_name}
-                                                            </div>
-                                                            <div className="text-neutral-400 text-xs">
-                                                                + RM {formatAmount(groupItem.modifier_price)}
-                                                            </div>
+                                                                <div className="text-neutral-800 text-xs font-bold">
+                                                                    {groupItem.modifier_name}
+                                                                </div>
+                                                                <div className="text-neutral-400 text-xs">
+                                                                    + RM {formatAmount(groupItem.modifier_price)}
+                                                                </div>
                                                             </div>
 
-                                                            <Radio value={groupItem.id} />
+                                                            <Checkbox value={groupItem.id} checked={isSelected} />
                                                         </div>
                                                         );
                                                     })}
                                                     </div>
-                                                </Radio.Group>
+                                                </Checkbox.Group>
                                             ) : (
                                             /* If max > 1 → Checkbox group */
                                             <Checkbox.Group value={selectedItems.map(item => item.id)}>
@@ -473,7 +515,7 @@ export default function AllProduct({
                                                                         );
                                                                     }, 0);
 
-                                                                    const totalPrice = parseFloat(p.prices) + modifierSum;
+                                                                    const totalPrice = (parseFloat(p.prices) + modifierSum) * p.quantity;
 
                                                                     return {
                                                                         ...p,
@@ -572,27 +614,52 @@ export default function AllProduct({
                             {/* Select Void / Serve this item */}
                             <div className="flex justify-center items-center gap-5">
                                 {
-                                    (selectProdHistory.status === 'preparing' || selectProdHistory.status === 'served') && (
+                                    orderItemInComplete && orderItemInComplete.length > 0 ? (
                                         <>
-                                            <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#85E167] hover:border-success-400 cursor-pointer"
-                                                onClick={serveItem}
-                                            >
-                                                {/* illus */}
-                                                <ServedIcon className="w-32 h-32" />
-                                                <div className="text-neutral-900 font-semibold text-base">
-                                                    {selectProdHistory.status === 'served' ? 'Unserve' : 'Serve'}
-                                                </div>
-                                            </div>
-                                            <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#FB7967] hover:border-error-400 cursor-pointer"
-                                                onClick={() => setOpenVoidItem(true)}
-                                            >
-                                                {/* illus */}
-                                                <VoidIcon className="w-32 h-32" />
-                                                <div className="text-neutral-900 font-semibold text-base">Void</div>
-                                            </div>
+                                            {
+                                                (selectProdHistory.status === 'preparing' || selectProdHistory.status === 'served') && (
+                                                    <>
+                                                        <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#85E167] hover:border-success-400 cursor-pointer"
+                                                            onClick={serveItem}
+                                                        >
+                                                            {/* illus */}
+                                                            <ServedIcon className="w-32 h-32" />
+                                                            <div className="text-neutral-900 font-semibold text-base">
+                                                                {selectProdHistory.status === 'served' ? 'Unserve' : 'Serve'}
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                )
+                                            }
+                                        </>
+                                    ) : (
+                                        <>
+                                            {
+                                                (selectProdHistory.status === 'preparing' || selectProdHistory.status === 'served') && (
+                                                    <>
+                                                        <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#85E167] hover:border-success-400 cursor-pointer"
+                                                            onClick={serveItem}
+                                                        >
+                                                            {/* illus */}
+                                                            <ServedIcon className="w-32 h-32" />
+                                                            <div className="text-neutral-900 font-semibold text-base">
+                                                                {selectProdHistory.status === 'served' ? 'Unserve' : 'Serve'}
+                                                            </div>
+                                                        </div>
+                                                        <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#FB7967] hover:border-error-400 cursor-pointer"
+                                                            onClick={() => setOpenVoidItem(true)}
+                                                        >
+                                                            {/* illus */}
+                                                            <VoidIcon className="w-32 h-32" />
+                                                            <div className="text-neutral-900 font-semibold text-base">Void</div>
+                                                        </div>
+                                                    </>
+                                                )
+                                            }
                                         </>
                                     )
                                 }
+                                
                                 
                             </div>
 
@@ -683,7 +750,7 @@ export default function AllProduct({
                             
                             {
                                 !categoryLoading && getCategory ? (
-                                    <div className="w-1/4 py-4 px-3 flex flex-wrap justify-center lg:grid grid-cols-2 justify-items-center gap-3 overflow-y-auto">
+                                    <div className="w-1/4 min-w-[220px] py-4 px-3 flex flex-wrap justify-center lg:grid grid-cols-2 justify-items-center gap-3 overflow-y-auto">
                                         {
                                             getCategory.length > 0 ? (
                                                 <>

@@ -11,7 +11,10 @@ class CategoryController extends Controller
     public function getCategories()
     {
 
-        $query = Category::where('status', 'active')->with(['product'])->orderBy('order_no');
+        $query = Category::where('status', 'active')
+            ->where('visibility', 'display')
+            ->with(['product'])
+            ->orderBy('order_no');
         
         $categories = $query->get();
 

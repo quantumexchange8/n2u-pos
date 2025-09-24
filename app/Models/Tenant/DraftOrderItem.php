@@ -3,24 +3,19 @@
 namespace App\Models\Tenant;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class OrderItem extends Model
+class DraftOrderItem extends Model
 {
-
-    use InteractsWithMedia;
-
     
     protected $fillable = [
-        'order_id',
+        'draft_order_id',
         'product_id',
         'type',
         'qty',
         'price',
-        'remarks',
         'total_price',
+        'remarks',
         'status',
-        'sys_remarks',
     ];
 
     public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -30,6 +25,7 @@ class OrderItem extends Model
 
     public function orderItemModifier(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(OrderItemModifier::class, 'order_item_id', 'id');
+        return $this->hasMany(DraftOrderItemModifier::class, 'order_item_id', 'id');
     }
+
 }

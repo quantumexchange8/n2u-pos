@@ -17,6 +17,7 @@ export default {
             },
             backgroundImage: {
                 'member-card': "url('/assets/images/member-card.png')",
+                'pchange': "linear-gradient(177deg, #FBB479 -190.26%, rgba(255, 255, 255, 0.06) 121.98%)",
             },
             colors: {
                 primary: {
@@ -105,7 +106,9 @@ export default {
                 'action': '0px 1.143px 2.286px 0px rgba(9, 9, 11, 0.05)',
                 'footer': '0px 2px 34.6px 0px rgba(9, 9, 11, 0.05)',
                 'button': '0 -3px 0 0 rgba(93, 93, 93, 0.04) inset, 0 1px 2px 0 rgba(9, 9, 11, 0.05)',
-                'sidebar': '0 -1px 22.3px 0 rgba(251, 117, 54, 0)'
+                'sidebar': '0 -1px 22.3px 0 rgba(251, 117, 54, 0)',
+                'keypad': '0 -4px 0 0 rgba(0, 0, 0, 0.02) inset, 0 1px 2px 0 rgba(9, 9, 11, 0.05)',
+                'pshadow': '0 3px 4.1px 0 rgba(253, 211, 166, 0.15) inset',
             }
         },
         fontSize: {

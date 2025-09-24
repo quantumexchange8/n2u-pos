@@ -3,6 +3,9 @@ import axios from 'axios';
 import { Circle, Group, Image, Layer, Line, Rect, Stage, Text } from "react-konva";
 import { Spin } from "antd";
 import { router } from "@inertiajs/react";
+import Modal from "@/Components/Modal";
+import Button from "@/Components/Button";
+import toast from "react-hot-toast";
 
 axios.defaults.withCredentials = true; // cookie auth
 
@@ -30,6 +33,10 @@ export default function TableOrder() {
     const [reservedColor, setReservedColor] = useState("#FCFCFC");
     const [selectedFloor, setSelectedFloor] = useState();
     const [isLoading, setIsLoading] = useState(false);
+    const [isPaxLoading, setIsPaxLoading] = useState(false);
+    const [openSelectPax, setOpenSelectPax] = useState(false);
+    const [pendingTable, setPendingTable] = useState(null);
+    const [pax, setPax] = useState(null);
 
     const fetchfloor = async () => {
         try {
@@ -84,27 +91,63 @@ export default function TableOrder() {
 
     const tableColorState = getFloors?.find(item => item.id === selectedFloor);
 
+    const handleOpenSelectPax = (selectedTable) => {
+        setPendingTable(selectedTable);  // store clicked table
+        setOpenSelectPax(true);  // open modal
+    };
+
+    useEffect(() => {
+        if (pax) {
+            if (pendingTable) {
+                handleSelect(pendingTable);
+            }
+        }
+    }, [pax])
+
     const handleSelect = async (tableId, e) => {
 
         const selectedTable = getTables?.find(table => table.table_id === tableId.table_id);
 
         setSelectedId(tableId.table_id);
-        setSelectedTable(selectedTable)
+        // setSelectedTable(selectedTable);
 
-        try {
-            
-            const response = await axios.post('/api/update-table', {
-                table_id: selectedTable.table_id,
-                table_layout_id: selectedTable.table_layout_id,
-            })
+        if (selectedTable.lock_status === 'locked') {
+            toast.error(`Table locked!.`, {
+                title: `Table locked!.`,
+                description: `Table locked!.`,
+                duration: 3000,
+                variant: 'variant3',
+            });
 
-            // go to order page with inertia instead of hard reload
-            router.visit(`/order?table_id=${selectedTable.table_id}&table_layout_id=${selectedTable.table_layout_id}`);
-
-        } catch (error) {
-            console.error('error', error);
+           return;
         }
         
+        if (selectedTable.status === 'available' && !pax) {
+            handleOpenSelectPax(selectedTable);
+        } else {
+            setIsPaxLoading(true)
+            try {
+            
+                const response = await axios.post('/api/update-table', {
+                    table_id: selectedTable.table_id,
+                    table_layout_id: selectedTable.table_layout_id,
+                    pax: pax,
+                });
+
+                setPendingTable(null);
+                setPax(null);
+                setOpenSelectPax(false);
+
+                // go to order page with inertia instead of hard reload
+                router.visit(`/order?table_id=${selectedTable.table_id}&table_layout_id=${selectedTable.table_layout_id}&pax=${response.data.pax}`);
+
+            } catch (error) {
+                console.error('error', error);
+            } finally {
+                setIsPaxLoading(false);
+            }
+        }
+
         // if (mergeMode) {
         //     setSelectedIds(prev =>
         //         prev.includes(tableId.table_id)
@@ -178,6 +221,10 @@ export default function TableOrder() {
                 <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full" style={{ background: tableColorState?.reserved_color }}></div>
                     <div className="text-neutral-900 text-sm font-medium">Reserved: {}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ background: tableColorState?.completed }}></div>
+                    <div className="text-neutral-900 text-sm font-medium">Completed: {}</div>
                 </div>
             </div>
             {/* floor s */}
@@ -299,6 +346,7 @@ export default function TableOrder() {
                                                                             case 'available': return table.available_color;
                                                                             case 'occupied': return table.in_use_color;
                                                                             case 'reserved': return table.reserved_color;
+                                                                            case 'completed': return table.completed_color;
                                                                             default: return shape.color;
                                                                             }
                                                                         })()
@@ -324,6 +372,7 @@ export default function TableOrder() {
                                                                             case 'available': return table.available_color;
                                                                             case 'occupied': return table.in_use_color;
                                                                             case 'reserved': return table.reserved_color;
+                                                                            case 'completed': return table.completed_color;
                                                                             default: return shape.color;
                                                                             }
                                                                         })()
@@ -382,6 +431,33 @@ export default function TableOrder() {
                     </div>
                 )
             }
+
+            <Modal
+                show={openSelectPax}
+                onClose={() => setOpenSelectPax(false)}
+                maxWidth="sm"
+                title={`No.of Pax`}
+                footer={
+                    <div className="flex items-center gap-3 w-full p-3">
+                        <Button variant="white" size="md" className="w-full flex items-center justify-center" onClick={() => setOpenSelectPax(false)}>Close</Button>
+                        {/* <Button size="md" className="w-full flex items-center justify-center" onClick={handleSelect}>Confirm</Button> */}
+                    </div>
+                }
+            >
+                <div className="grid grid-cols-5 gap-3 p-4">
+                    {[...Array(40)].map((_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setPax(i + 1)}
+                            disabled={isPaxLoading}
+                            className={`p-4 rounded-xl text-lg font-semibold border 
+                                ${pax === i + 1 ? "bg-primary-500 text-white" : "bg-white border-neutral-200"}`}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                </div>
+            </Modal>
         </div>
     )
 }

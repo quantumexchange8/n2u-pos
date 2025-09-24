@@ -5,10 +5,14 @@ namespace App\Http\Controllers\API;
 use App\Events\OrderHistory;
 use App\Events\TableStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Tenant\DraftOrder;
+use App\Models\Tenant\DraftOrderItem;
+use App\Models\Tenant\DraftOrderItemModifier;
 use App\Models\Tenant\FloorTable;
 use App\Models\Tenant\Order;
 use App\Models\Tenant\OrderItem;
 use App\Models\Tenant\OrderItemModifier;
+use App\Models\Tenant\Otp;
 use App\Models\Tenant\Shift;
 use App\Models\Tenant\TaxSetting;
 use App\Models\User;
@@ -45,31 +49,55 @@ class PlaceOrderController extends Controller
 
 
         if ($table && $currentShift) {
-            $order = Order::create([
-                'shift_id' => $currentShift->id,
-                'user_id' => $user->id,
-                'order_no' => RunningNumberService::getID('order_no'),
-                'table_id' => $table->id,
-                'table_name' => $table->table_name,
-                'status' => 'draft',
-                'pax' => $table->pax,
-            ]);
-    
+
             $table->update([
-                'status' => 'occupied',
-                'current_order_id' => $order->id,
+                'lock_status' => 'locked',
+                'locked_by' => $user->id,
             ]);
 
+            // $order = Order::create([
+            //     'shift_id' => $currentShift->id,
+            //     'user_id' => $user->id,
+            //     'order_no' => RunningNumberService::getID('order_no'),
+            //     'table_id' => $table->id,
+            //     'table_name' => $table->table_name,
+            //     'status' => 'draft',
+            //     'pax' => $table->pax,
+            // ]);
+    
+            // $table->update([
+            //     'status' => 'occupied',
+            //     'current_order_id' => $order->id,
+            // ]);
+
+            broadcast(new TableStatus($table))->toOthers();
+
             return response()->json([
-                'message' => 'Order created: ' . $order->order_no . ' & table updated: ' . $table->status,
-                'order' => $order,
+                // 'message' => 'Order created: ' . $order->order_no . ' & table updated: ' . $table->status,
+                // 'order' => $order,
                 'table' => $table,
+                'pax' => $request->pax,
             ], 200);
         }
 
         return response()->json([
             'message' => 'table not found / current shift is not active'
         ], 400);
+    }
+
+    public function returnFromOrder(Request $request)
+    {
+
+        $table = FloorTable::find($request->table);
+
+        $table->update([
+            'lock_status' => null,
+            'locked_by' => null,
+        ]);
+
+        broadcast(new TableStatus($table))->toOthers();
+
+        return response()->json(['success' => true]);
     }
 
     public function placeOrder(Request $request)
@@ -130,9 +158,36 @@ class PlaceOrderController extends Controller
 
     public function placeOrderItem(Request $request)
     {
-        // dd($request->products);
-        $order = Order::where('id', $request->order_id)->where('order_no', $request->order_no)->first();
-        
+        // dd($request->all());
+
+        $findTable = FloorTable::find($request->table_id);
+        $user = Auth::user();
+
+        $currentShift = Shift::where('shift_status', 'active')->first();
+
+        if (!$findTable->current_order_id) {
+            
+            $order = Order::create([
+                'shift_id' => $currentShift->id,
+                'user_id' => $user->id,
+                'order_no' => RunningNumberService::getID('order_no'),
+                'table_id' => $findTable->id,
+                'table_name' => $findTable->table_name,
+                'status' => 'draft',
+                'pax' => $request->pax,
+            ]);
+
+            $findTable->update([
+                'status' => 'occupied',
+                'current_order_id' => $order->id,
+            ]);
+
+        } else {
+
+            $order = Order::where('id', $request->order_id)->where('order_no', $request->order_no)->first();
+
+        }
+
         if ($order) {
 
             $sst = TaxSetting::where('type', 'sst')->first();
@@ -144,11 +199,17 @@ class PlaceOrderController extends Controller
 
             $total = $request->total_amount + $tax + $service_tax;
 
+            $rounded_total = round($total * 20) / 20;
+            $rounding = $rounded_total - $total;
+
             $order->update([
                 'subtotal' => $request->total_amount,
                 'tax' => $tax,
+                'tax_rate' => $sst->percentage,
                 'service_charge' => $service_tax,
-                'total' => $total,
+                'service_rate' => $service_charge->percentage,
+                'rounding' => $rounding,
+                'total' => $rounded_total,
                 'status' => 'pending',
             ]);
 
@@ -159,7 +220,7 @@ class PlaceOrderController extends Controller
                     'product_id' => $item['product_id'],
                     'type' => 'product',
                     'qty' => $item['quantity'],
-                    'price' => $item['total_price'],
+                    'price' => $item['prices'],
                     'total_price' => $item['total_price'] * $item['quantity'],
                     'remarks' => $item['remarks'],
                     'status' => 'preparing',
@@ -169,16 +230,18 @@ class PlaceOrderController extends Controller
                     foreach ($item['product_modifier'] as $modifier) {
                         // dd($modifier['id']);
 
-                        foreach ($modifier['product_item_ids'] as $prodItem ) {
-
-                            $orderItemMod = OrderItemModifier::create([
-                                'order_item_id' => $orderItem->id,
-                                'modifier_group_id' => $modifier['id'],
-                                'modifier_group_item_id' => $prodItem['id'],
-                                'name' => $modifier['name'],
-                                'modifier_name' => $prodItem['modifier_name'],
-                                'modifier_price' => $prodItem['modifier_price'],
-                            ]);
+                        if (!empty($modifier['product_item_ids'])) {
+                            foreach ($modifier['product_item_ids'] as $prodItem ) {
+    
+                                $orderItemMod = OrderItemModifier::create([
+                                    'order_item_id' => $orderItem->id,
+                                    'modifier_group_id' => $modifier['id'],
+                                    'modifier_group_item_id' => $prodItem['id'],
+                                    'name' => $modifier['name'],
+                                    'modifier_name' => $prodItem['modifier_name'],
+                                    'modifier_price' => $prodItem['modifier_price'],
+                                ]);
+                            }
                         }
                     }
                 }
@@ -200,10 +263,11 @@ class PlaceOrderController extends Controller
 
     public function serveOrderItem(Request $request)
     {
-
         if (!empty($request->params)) {
             $orderItemId = $request->params['order_item_id'];
+            $orderId = $request->params['order_id'];
 
+            $order = Order::find($orderId);
             $orderitem = OrderItem::find($orderItemId);
 
             if ($orderitem) {
@@ -215,9 +279,16 @@ class PlaceOrderController extends Controller
 
                     broadcast(new OrderHistory($orderitem->order_id))->toOthers();
 
+                    $itemsServed = false;
+                    if ($order->payment_status === 'completed') {
+                        $itemsServed = $this->checkAllOrderItem($order);
+                    }
+                    
+
                     return response()->json([
                         'success' => true,
-                        'message' => 'Order item served.'
+                        'message' => 'Order item served.',
+                        'items_served' => $itemsServed
                     ]);
                 }
 
@@ -249,19 +320,45 @@ class PlaceOrderController extends Controller
 
     public function voidOrderItem(Request $request)
     {
-
+        
         $user = Auth::user();
         $params = $request->params;
         
         if ($user->pin === $params['pinNo']) {
 
+            $order = Order::find($params['order_id']);
             $orderItem = OrderItem::find($params['order_item_id']);
 
-            if ($orderItem) {
-
+            if ($orderItem && $order) {
                 $orderItem->update([
                     'status' => 'void',
                     'sys_remarks' => $params['sysRemark'],
+                ]);
+
+                $sst = TaxSetting::where('type', 'sst')->first();
+                $service_charge = TaxSetting::where('type', 'service_charge')->first();
+
+                $remainingItems = OrderItem::where('order_id', $order->id)
+                    ->where('status', '!=', 'void')
+                    ->get();
+
+                $subtotal = $remainingItems->sum('total_price');
+                $tax_amount = $sst ? $subtotal * ($sst->percentage / 100) : 0;
+                $service_tax = $service_charge ? $subtotal * ($service_charge->percentage / 100) : 0;
+
+                $total = $subtotal + $tax_amount + $service_tax;
+
+                // Round to nearest 0.05 (like Malaysia F&B)
+                $rounded_total = round($total * 20) / 20;
+                $rounding = $rounded_total - $total;
+
+                // Update order
+                $order->update([
+                    'subtotal'       => $subtotal,
+                    'tax'            => $tax_amount,
+                    'service_charge' => $service_tax,
+                    'rounding'       => $rounding,
+                    'total'          => $rounded_total,
                 ]);
 
                 broadcast(new OrderHistory($orderItem->order_id))->toOthers();
@@ -300,6 +397,136 @@ class PlaceOrderController extends Controller
 
         }
 
+        return response()->json([
+            'error' => 'error fetching data',
+        ]);
+    }
+
+    public function draftOrderItems(Request $request)
+    {
+        $user = Auth::user();
+        $checkDraft = DraftOrder::where('table_id', $request->table_id)->where('status', 'draft')->first();
+
+        if ($checkDraft) {
+
+        }
+
+        if (!$checkDraft) {
+            $draft = DraftOrder::create([
+                'table_id' => $request->table_id,
+                'user_id' => $user->id,
+                'status' => 'draft',
+            ]);
+
+            foreach ($request->products as $item) {
+                // dd($item);
+
+                $findDraftItem = DraftOrderItem::find($item['id']);
+
+                if ($findDraftItem) {
+                    $findDraftItem->update([
+                        'product_id' => $item['product_id'],
+                        'type' => 'product',
+                        'qty' => $item['quantity'],
+                        'price' => $item['total_price'],
+                        'total_price' => $item['total_price'] * $item['quantity'],
+                        'remarks' => $item['remarks'],
+                        'status' => 'draft',
+                    ]);
+                } else {
+
+                    $draftItem = DraftOrderItem::create([
+                        'draft_order_id' => $draft->id,
+                        'product_id' => $item['product_id'],
+                        'type' => 'product',
+                        'qty' => $item['quantity'],
+                        'price' => $item['total_price'],
+                        'total_price' => $item['total_price'] * $item['quantity'],
+                        'remarks' => $item['remarks'],
+                        'status' => 'draft',
+                    ]);
+                }
+
+                if (!empty($item['product_modifier'])) {
+                    foreach ($item['product_modifier'] as $modifier) {
+                        // dd($modifier['id']);
+
+                        if (!empty($modifier['product_item_ids'])) {
+                            foreach ($modifier['product_item_ids'] as $prodItem ) {
+    
+                                $draftItemMod = DraftOrderItemModifier::create([
+                                    'order_item_id' => $draftItem->id,
+                                    'modifier_group_id' => $modifier['id'],
+                                    'modifier_group_item_id' => $prodItem['id'],
+                                    'name' => $modifier['name'],
+                                    'modifier_name' => $prodItem['modifier_name'],
+                                    'modifier_price' => $prodItem['modifier_price'],
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return response()->json();
+    }
+
+    public function serveAllItem(Request $request)
+    {
+
+        if (!empty($request->items)) {
+            foreach ($request->items as $item) {
+                $findItem = OrderItem::find($item['id']);
+
+                $findItem->update([
+                    'status' => 'served',
+                ]);
+            }
+
+            $order = Order::find($request->order_id);
+
+            $itemsServed = false;
+            if ($order->payment_status === 'completed') {
+                $itemsServed = $this->checkAllOrderItem($order);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order item served.',
+                'items_served' => $itemsServed
+            ]);
+        }
+
+        return response()->json();
+    }
+
+    // Private Section
+    private function checkAllOrderItem($order)
+    {
+
+        $checkOrderItems = OrderItem::where('order_id', $order->id)->pluck('status');
+
+        if ($checkOrderItems->contains('preparing')) {
+            // Still preparing → not all served
+            return false;
+        }
+
+        // No preparing left → mark order completed
+        $order->update([
+            'status' => 'completed',
+        ]);
+
+        $findTable = FloorTable::find($order->table_id);
+        $findTable->update([
+            'status' => 'completed',
+            'current_order_id' => null,
+            'lock_status' => null,
+            'locked_by' => null,
+            'status' => 'available',
+        ]);
+
+        return true; // ✅ tell controller that all served
+
     }
 }
