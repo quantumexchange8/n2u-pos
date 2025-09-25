@@ -26,6 +26,8 @@ class Order extends Model
         'rounding',
         'service_charge',
         'payment_status',
+        'void_datetime',
+        'voided_by',
     ];
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo

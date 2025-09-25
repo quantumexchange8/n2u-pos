@@ -10,11 +10,13 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { CustomToaster } from "@/Components/CustomToaster";
 import { Transition } from "@headlessui/react";
-import { Badge, Radio, Segmented, Tag } from "antd";
+import { Badge, Divider, Radio, Segmented, Tag } from "antd";
 import TextInput from "@/Components/TextInput";
 import ConfirmDialog from "@/Components/ConfirmDialog";
 import Unassigned from "@/Components/Illustration/Unassigned";
 import RedirectingText from "@/Components/RedirectingText";
+import Numlock from "@/Components/Numlock";
+import InputError from "@/Components/InputError";
 
 axios.defaults.withCredentials = true;
 
@@ -40,6 +42,11 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
     const [openConfirmVoid, setOpenConfirmVoid] = useState(false);
     const [isFetchingOrder, setIsFetchingOrder] = useState(false);
     const [directingLoad, setDirectingLoad] = useState(false);
+    const [voidRemark, setVoidRemark] = useState('');
+    const [pinNo, setPinNo] = useState('');
+    const [openNumpad, setOpenNumpad] = useState(false);
+    const [pinError, setPinError] = useState('');
+    const [remarkRequired, setRemarkRequired] = useState('');
 
     const { data, setData, post, processing, errors, reset } = useForm({
         table_id: table.id ? table.id : null,
@@ -48,6 +55,7 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
         products: [],
         total_amount: '',
         pax: pax,
+        customer_id: pax,
     });
 
     // useEffect(() => {
@@ -104,25 +112,30 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
     }
 
     const savePax = async () => {
-        try {
-            
-            const response = await axios.post('/api/update-order-pax', {
-                order_id: table.order.id,
-                order_no: table.order.order_no,
-                pax: pax
-            })
-
+        if (table.order) {
+            try {
+                
+                const response = await axios.post('/api/update-order-pax', {
+                    order_id: table.order.id,
+                    order_no: table.order.order_no,
+                    pax: pax
+                })
+    
+                setIsPaxOpen(false);
+                router.reload({ only: ['table'] });
+    
+                toast.success(`Pax updated!`, {
+                    title: `Pax updated!`,
+                    duration: 3000,
+                    variant: 'variant3',
+                });
+    
+            } catch (error) {
+                console.error('error', error);
+            }
+        } else {
+            setData('pax', pax);
             setIsPaxOpen(false);
-            router.reload({ only: ['table'] });
-
-            toast.success(`Pax updated!`, {
-                title: `Pax updated!`,
-                duration: 3000,
-                variant: 'variant3',
-            });
-
-        } catch (error) {
-            console.error('error', error);
         }
     }
 
@@ -176,24 +189,30 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
     });
 
     const selectUser = async () => {
-        try {
-            
-            const response = await axios.post('/api/add-customer-to-order', {
-                member_id: selectedMember,
-                order_id: table.order.id,
-            })
 
+        if (table.user) {
+            try {
+                
+                const response = await axios.post('/api/add-customer-to-order', {
+                    member_id: selectedMember,
+                    order_id: table.order.id,
+                })
+    
+                setIsOpenCustomer(false);
+                router.reload({ only: ['table'] });
+    
+                toast.success(`Added Customer!`, {
+                    title: `Added Customer!`,
+                    duration: 3000,
+                    variant: 'variant3',
+                });
+    
+            } catch (error) {
+                console.error('error', error);
+            }
+        } else {
+            setData('customer_id', selectedMember);
             setIsOpenCustomer(false);
-            router.reload({ only: ['table'] });
-
-            toast.success(`Added Customer!`, {
-                title: `Added Customer!`,
-                duration: 3000,
-                variant: 'variant3',
-            });
-
-        } catch (error) {
-            console.error('error', error);
         }
     }
 
@@ -298,7 +317,8 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
 
             setGetOrderHistory(response.data);
             if (isOrderHistoryOpen) {
-                setSelectProdHistory(response.data[0])
+                setSelectProdHistory(response.data[0]);
+                router.reload({ only: ['table'] });
             }
             
         } catch (error) {
@@ -375,8 +395,32 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
     const confirmVoidOrder = async () => {
         try {
             
+            const response = await axios.post('/api/void-order-bill', {
+                params: {
+                    order_id: table.order.id,
+                    remarks: voidRemark,
+                    pinNo: pinNo,
+                }
+            });
+
+            if (response.data.success) {
+                router.visit('dashboard');
+
+                toast.success(`Order Voided!.`, {
+                    title: `Order Voided!.`,
+                    duration: 3000,
+                    variant: 'variant3',
+                });
+            }
+
         } catch (error) {
             console.error('error', error);
+            setPinError(error.response.data.message);
+            if (error.response.data.remark) {
+                setOpenNumpad(false);
+                setPinNo('');
+                setRemarkRequired(error.response.data.remark);
+            }
         }
     }
 
@@ -405,6 +449,76 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
         } catch (error) {
             console.error('error', error);
         }
+    }
+
+    const clearDraft = () => {
+        setData('products', []);
+        setSelectedProduct(null)
+    }
+
+    const serveOrderHistory = async () => {
+
+        if (getOrderHistory.length == 0) {
+            toast.error(`No order item found!`, {
+                title: `No order item found!`,
+                duration: 3000,
+                variant: 'variant3',
+            });
+
+            return;
+        }
+
+        if (getOrderHistory.length > 0) {
+
+            try {
+
+                const response = await axios.post('/api/serve-all-order-history', {
+                    order_id: table.order.id,
+                });
+
+                if (response.data.success) {
+                    if (window.Echo) {
+                        window.Echo.private('order-histories')
+                            .listen('.OrderHistory', (e) => {
+                                if (e.orderId === table.order.id) {
+                                    fetchOrderHistory(); // always refresh from backend
+                                }
+                            });
+                    }
+                    toast.success(`All Order Served!`, {
+                        title: `All Order Served!`,
+                        duration: 3000,
+                        variant: 'variant3',
+                    });
+                } else {
+                    if (window.Echo) {
+                        window.Echo.private('order-histories')
+                            .listen('.OrderHistory', (e) => {
+                                if (e.orderId === table.order.id) {
+                                    fetchOrderHistory(); // always refresh from backend
+                                }
+                            });
+                    }
+                    toast.error(`No item to served!`, {
+                        title: `No item to served!`,
+                        duration: 3000,
+                        variant: 'variant3',
+                    });
+                }
+                
+            } catch (error) {
+                console.error('error serving all', error);
+            }
+        }
+    }
+
+    const openNumLock = () => {
+        setOpenNumpad(true);
+    }
+    const closeNumpad = () => {
+        setOpenNumpad(false);
+        setPinNo('');
+        setPinError('');
     }
 
     return (
@@ -543,12 +657,13 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                         <Button size="md" variant="white" className="flex items-center gap-2" onClick={() => {
                                                 setIsOrderHistoryOpen(false)
                                                 setSelectProdHistory(null)
+                                                setGetOrderHistory([])
                                             }} 
                                         >
                                             <BackIcon /> <span>Back</span>
                                         </Button>
                                     </div>
-                                    <div className="flex flex-col justify-between min-h-[90vh] overflow-y-auto">
+                                    <div className="flex flex-col justify-between max-h-[90vh] overflow-y-auto">
                                         {
                                             getOrderHistory.length > 0 ? (
                                                 <div className="flex flex-col max-h-[90vh] overflow-auto ">
@@ -606,8 +721,37 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                                 <div></div>
                                             )
                                         }
-                                        <div className="py-2 px-4 flex gap-3 items-center">
-                                            <Button variant="secondary" size="md" className="w-full flex justify-center" onClick={goToPay} >Go to Pay</Button>
+                                        <div className="flex flex-col gap-3">
+                                            <div className="py-2 px-4 flex flex-col gap-1">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="text-neutral-900 text-sm">Subtotal</div>
+                                                    <div className="text-neutral-900 font-bold text-sm">RM {table.order.subtotal}</div>
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="text-neutral-900 text-sm">SST ({table.order.tax_rate}%)</div>
+                                                    <div className="text-neutral-900 font-bold text-sm">RM {table.order.tax}</div>
+                                                </div>
+                                                {
+                                                    table.order?.service_rate !== 0 && (
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="text-neutral-900 text-sm">Service Tax ({table.order.service_rate}%)</div>
+                                                            <div className="text-neutral-900 font-bold text-sm">RM {table.order.service_charge}</div>
+                                                        </div>
+                                                    )
+                                                }
+                                                <div className="flex items-center justify-between">
+                                                    <div className="text-neutral-900 text-sm">Rounding</div>
+                                                    <div className="text-neutral-900 font-bold text-sm">RM {table.order.rounding}</div>
+                                                </div>
+                                                <Divider dashed className="my-2" />
+                                                <div className="flex items-center justify-between">
+                                                    <div className="text-neutral-900 text-lg">Total (Incl. Tax)</div>
+                                                    <div className="text-neutral-900 font-bold text-lg">RM {table.order.total}</div>
+                                                </div>
+                                            </div>
+                                            <div className="py-2 px-4 flex gap-3 items-center">
+                                                <Button variant="secondary" size="md" className="w-full flex justify-center" onClick={goToPay} >Go to Pay</Button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -640,6 +784,14 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                             </Button>
                                         </div>
                                     </div>
+                                    {
+                                        data.products.length > 0 && (
+                                            <div className="py-3 px-4 flex flex-row gap-5 items-center justify-between border-b border-neutral-100 bg-blue-50 ">
+                                                <span className="italic font-bold">Draft Order</span>
+                                                <Button size="sm" variant="white" onClick={clearDraft}>Clear All</Button>
+                                            </div>
+                                        )
+                                    }
                                     <div className="flex flex-col justify-between min-h-[96vh]">
                                         {
                                             data.products && data.products.length > 0 ? (
@@ -717,7 +869,7 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                                 <div className="text-neutral-900 text-lg font-bold">RM {formatAmount(totalBill)}</div>
                                             </div>
                                             <div className="py-2 px-4 flex gap-3 items-center">
-                                                <Button variant="secondary" size="md" className="w-full flex justify-center" onClick={goToPay} >Go to Pay</Button>
+                                                {/* <Button variant="secondary" size="md" className="w-full flex justify-center" onClick={goToPay} >Go to Pay</Button> */}
                                                 <Button size="md" className="w-full flex justify-center" onClick={placeOrder} disabled={isPlacingOrder || data.products.length == 0 || requiredDisable} >Place Order</Button>
                                             </div>
                                         </div>
@@ -736,10 +888,21 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                         <div className="text-neutral-900 text-lg font-bold">{table.table_name}</div>
                         <div className=" uppercase text-sm text-neutral-400">pax: {table.order?.pax}</div>
                     </div>
-                    <div className="flex gap-3 items-center">
-                        <Button size="md" variant="white" className="h-11 box-border">Release</Button>
-                        <Button size="md" variant="black" className="text-nowrap text-sm h-11 box-border flex items-center gap-2" disabled={requiredDisable} onClick={returnBack}><BackIcon /> Go Back</Button>
-                    </div>
+                    {
+                        isOrderHistoryOpen && (
+                            <div className="flex gap-3 items-center">
+                                <Button size="md" variant="white" className="h-11 box-border text-nowrap bg-green-100" onClick={serveOrderHistory} >Served All</Button>
+                            </div>
+                        )
+                    }
+                    {
+                        !isOrderHistoryOpen && (
+                            <div className="flex gap-3 items-center">
+                                <Button size="md" variant="white" className="h-11 box-border">Release</Button>
+                                <Button size="md" variant="black" className="text-nowrap text-sm h-11 box-border flex items-center gap-2" disabled={requiredDisable} onClick={returnBack}><BackIcon /> Go Back</Button>
+                            </div>
+                        )
+                    }
                 </div>
 
                 <AllProduct 
@@ -808,12 +971,16 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                 </div>
                                 <div className="text-white text-base font-bold">Pax</div>
                             </div>
-                            <div className="flex flex-col items-center gap-4" onClick={voidOrder}>
-                                <div className="w-20 h-20 p-5 flex items-center justify-center bg-white rounded-full hover:bg-neutral-50 cursor-pointer">
-                                    <DeleteIcon className="w-5 h-5" />
-                                </div>
-                                <div className="text-white text-base font-bold">Void</div>
-                            </div>
+                            {
+                                table.order && (
+                                    <div className="flex flex-col items-center gap-4" onClick={voidOrder}>
+                                        <div className="w-20 h-20 p-5 flex items-center justify-center bg-white rounded-full hover:bg-neutral-50 cursor-pointer">
+                                            <DeleteIcon className="w-5 h-5" />
+                                        </div>
+                                        <div className="text-white text-base font-bold">Void</div>
+                                    </div>
+                                )
+                            }
                             <div className="flex flex-col items-center gap-4">
                                 <div className="w-20 h-20 p-5 flex items-center justify-center bg-white rounded-full hover:bg-neutral-50 cursor-pointer">
                                     <VoucherIcon className="text-neutral-900" />
@@ -952,15 +1119,41 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                     <div>
                         <VoidIcon className="w-32 h-32" />
                     </div>
-                    <div className="flex flex-col gap-2">
-                        <div className="text-lg font-bold text-gray-950 text-center">Void Order?</div>
-                        <div className="text-sm text-neutral-700 text-center">This action will cancel the entire order and remove it from the active list. Once voided, the order cannot be recovered. </div>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-2">
+                            <div className="text-lg font-bold text-gray-950 text-center">Void Order?</div>
+                            <div className="text-sm text-neutral-700 text-center">This action will cancel the entire order and remove it from the active list. Once voided, the order cannot be recovered. </div>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <TextInput 
+                                id="voidRemark"
+                                type="text"
+                                name="voidRemark"
+                                value={voidRemark}
+                                className="w-full"
+                                autoComplete="voidRemark"
+                                isFocused={true}
+                                onChange={(e) => setVoidRemark(e.target.value)}
+                                placeholder='remarks...'
+                            />
+                            <InputError message={remarkRequired} />
+                        </div>
                     </div>
+
                     <div className="flex justify-center gap-4 w-full">
                         <Button variant="white" size="md" onClick={closeConfirmVoid} className="w-full flex items-center justify-center">Cancel</Button>
-                        <Button size="md" variant="red" onClick={confirmVoidOrder} className="w-full flex items-center justify-center">Confirm</Button>
+                        <Button size="md" variant="red" onClick={openNumLock} className="w-full flex items-center justify-center">Confirm</Button>
                     </div>
                 </div>
+
+                <Numlock 
+                    show={openNumpad}
+                    value={pinNo} 
+                    onChange={(val) => setPinNo(val)} 
+                    onClose={closeNumpad}
+                    onSubmit={confirmVoidOrder}
+                    error={pinError}
+                />
             </ConfirmDialog>
         </div>
     )

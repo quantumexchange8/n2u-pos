@@ -223,7 +223,7 @@ export default function TableOrder() {
                     <div className="text-neutral-900 text-sm font-medium">Reserved: {}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full" style={{ background: tableColorState?.completed }}></div>
+                    <div className="w-2 h-2 rounded-full" style={{ background: tableColorState?.completed_color }}></div>
                     <div className="text-neutral-900 text-sm font-medium">Completed: {}</div>
                 </div>
             </div>

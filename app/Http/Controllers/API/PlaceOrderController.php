@@ -17,6 +17,7 @@ use App\Models\Tenant\Shift;
 use App\Models\Tenant\TaxSetting;
 use App\Models\User;
 use App\Services\RunningNumberService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -202,14 +203,16 @@ class PlaceOrderController extends Controller
             $rounded_total = round($total * 20) / 20;
             $rounding = $rounded_total - $total;
 
+            $order->subtotal += $request->total_amount;
+            $order->tax += $tax;
+            $order->service_charge += $service_tax;
+            $order->rounding += $rounding;
+            $order->total += $rounded_total;
+            $order->save();
+
             $order->update([
-                'subtotal' => $request->total_amount,
-                'tax' => $tax,
                 'tax_rate' => $sst->percentage,
-                'service_charge' => $service_tax,
                 'service_rate' => $service_charge->percentage,
-                'rounding' => $rounding,
-                'total' => $rounded_total,
                 'status' => 'pending',
             ]);
 
@@ -499,6 +502,85 @@ class PlaceOrderController extends Controller
         }
 
         return response()->json();
+    }
+
+    public function serveAllOrderHistory(Request $request)
+    {
+
+        $orderItem = OrderItem::where('order_id', $request->order_id)->where('status', 'preparing')->get();
+
+        if ($orderItem->isNotEmpty()) {
+            foreach ($orderItem as $item) {
+                $item->update([
+                    'status' => 'served',
+                ]);
+            }
+
+            broadcast(new OrderHistory($request->order_id))->toOthers();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'All Order item served.',
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'No item to be served.',
+        ]);
+    }
+
+    public function voidOrderBill(Request $request)
+    {
+
+        $user = Auth::user();
+        $params = $request->params;
+
+        if ($user->pin === $params['pinNo']) {
+
+            if ($params['remarks']) {
+
+                $order = Order::find($params['order_id']);
+
+                $table = FloorTable::find($order->table_id);
+
+                if ($table && $order) {
+                    $order->update([
+                        'status' => 'voided',
+                        'remark' => $params['remarks'],
+                        'void_datetime' => Carbon::now(),
+                        'voided_by' => $user->id,
+                    ]);
+
+                    $table->update([
+                        'status' => 'available',
+                        'current_order_id' => null,
+                        'lock_status' => null,
+                        'locked_by' => null,
+                    ]);
+                    
+                    broadcast(new TableStatus($table))->toOthers();
+
+                    return response()->json([
+                        'success' => true
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Table or order is not found.',
+                ], 400);
+            }
+
+            return response()->json([
+                'remark' => 'Remarks is required.'
+            ], 400);
+
+        }
+
+        return response()->json([
+            'message' => 'Invalid pin'
+        ], 401);
     }
 
     // Private Section

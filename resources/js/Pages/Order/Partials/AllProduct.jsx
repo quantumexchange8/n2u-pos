@@ -264,10 +264,10 @@ export default function AllProduct({
                         </div>
                         <div className="py-4 flex flex-col gap-5">
                             <div className="py-2 px-4 flex flex-row gap-3">
-                                <div className="max-w-[140px] w-full h-[140px] bg-neutral-50 flex items-center justify-center rounded-lg px-2">
+                                <div className="max-w-[140px] w-full h-[140px] bg-neutral-50 flex items-center justify-center rounded-lg p-2">
                                     {
                                         selectedProduct.product_image ? (
-                                            <img src={selectedProduct.product_image} alt="" />
+                                            <img src={selectedProduct.product_image} alt="" className=" object-cover max-w-[120px] w-full h-[120px] " />
                                         ) : (
                                             <div >
                                                 <img src='/assets/images/no-picture.svg' alt="" />
@@ -619,7 +619,7 @@ export default function AllProduct({
                                             {
                                                 (selectProdHistory.status === 'preparing' || selectProdHistory.status === 'served') && (
                                                     <>
-                                                        <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#85E167] hover:border-success-400 cursor-pointer"
+                                                        <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 bg-green-200 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#85E167] hover:border-success-400 cursor-pointer"
                                                             onClick={serveItem}
                                                         >
                                                             {/* illus */}
@@ -637,7 +637,7 @@ export default function AllProduct({
                                             {
                                                 (selectProdHistory.status === 'preparing' || selectProdHistory.status === 'served') && (
                                                     <>
-                                                        <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#85E167] hover:border-success-400 cursor-pointer"
+                                                        <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 bg-green-200 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#85E167] hover:border-success-400 cursor-pointer"
                                                             onClick={serveItem}
                                                         >
                                                             {/* illus */}
@@ -646,7 +646,7 @@ export default function AllProduct({
                                                                 {selectProdHistory.status === 'served' ? 'Unserve' : 'Serve'}
                                                             </div>
                                                         </div>
-                                                        <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#FB7967] hover:border-error-400 cursor-pointer"
+                                                        <div className="p-3 flex flex-col items-center gap-3 w-40 border border-neutral-100 bg-red-200 rounded-lg transition duration-300 ease-in-out hover:shadow-[0_0_5px_#FB7967] hover:border-error-400 cursor-pointer"
                                                             onClick={() => setOpenVoidItem(true)}
                                                         >
                                                             {/* illus */}

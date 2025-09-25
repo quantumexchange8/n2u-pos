@@ -98,7 +98,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/serve-order-item', [PlaceOrderController::class, 'serveOrderItem']);
     Route::post('/void-order-item', [PlaceOrderController::class, 'voidOrderItem']);
     Route::post('/serve-all-item', [PlaceOrderController::class, 'serveAllItem']);
-    
+    Route::post('/serve-all-order-history', [PlaceOrderController::class, 'serveAllOrderHistory']);
+    Route::post('/void-order-bill', [PlaceOrderController::class, 'voidOrderBill']);
 
     /**
      * ==============================
