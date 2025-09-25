@@ -156,7 +156,7 @@ class PaymentController extends Controller
         }
 
        
-        broadcast(new TableStatus($findTable))->toOthers();
+        // broadcast(new TableStatus($findTable))->toOthers();
         
     }
 

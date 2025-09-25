@@ -71,7 +71,7 @@ class PlaceOrderController extends Controller
             //     'current_order_id' => $order->id,
             // ]);
 
-            broadcast(new TableStatus($table))->toOthers();
+            // broadcast(new TableStatus($table))->toOthers();
 
             return response()->json([
                 // 'message' => 'Order created: ' . $order->order_no . ' & table updated: ' . $table->status,
@@ -96,7 +96,7 @@ class PlaceOrderController extends Controller
             'locked_by' => null,
         ]);
 
-        broadcast(new TableStatus($table))->toOthers();
+        // broadcast(new TableStatus($table))->toOthers();
 
         return response()->json(['success' => true]);
     }
@@ -112,7 +112,7 @@ class PlaceOrderController extends Controller
             'status' => $request->status
         ]);
 
-        broadcast(new TableStatus($table))->toOthers();
+        // broadcast(new TableStatus($table))->toOthers();
 
         return response()->json(['success' => true]);
     }
@@ -250,7 +250,7 @@ class PlaceOrderController extends Controller
                 }
             }
 
-            broadcast(new OrderHistory($order->id))->toOthers();
+            // broadcast(new OrderHistory($order->id))->toOthers();
 
             return response()->json([
                 'success' => true,
@@ -280,7 +280,7 @@ class PlaceOrderController extends Controller
                         'status' => 'served'
                     ]);
 
-                    broadcast(new OrderHistory($orderitem->order_id))->toOthers();
+                    // broadcast(new OrderHistory($orderitem->order_id))->toOthers();
 
                     $itemsServed = false;
                     if ($order->payment_status === 'completed') {
@@ -300,7 +300,7 @@ class PlaceOrderController extends Controller
                         'status' => 'preparing'
                     ]);
 
-                    broadcast(new OrderHistory($orderitem->order_id))->toOthers();
+                    // broadcast(new OrderHistory($orderitem->order_id))->toOthers();
 
                     return response()->json([
                         'success' => true,
@@ -364,7 +364,7 @@ class PlaceOrderController extends Controller
                     'total'          => $rounded_total,
                 ]);
 
-                broadcast(new OrderHistory($orderItem->order_id))->toOthers();
+                // broadcast(new OrderHistory($orderItem->order_id))->toOthers();
 
                 return response()->json([
                     'message' => 'Order item voided.'
@@ -516,7 +516,7 @@ class PlaceOrderController extends Controller
                 ]);
             }
 
-            broadcast(new OrderHistory($request->order_id))->toOthers();
+            // broadcast(new OrderHistory($request->order_id))->toOthers();
 
             return response()->json([
                 'success' => true,
@@ -559,7 +559,7 @@ class PlaceOrderController extends Controller
                         'locked_by' => null,
                     ]);
                     
-                    broadcast(new TableStatus($table))->toOthers();
+                    // broadcast(new TableStatus($table))->toOthers();
 
                     return response()->json([
                         'success' => true

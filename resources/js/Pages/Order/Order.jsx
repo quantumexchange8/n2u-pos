@@ -663,7 +663,7 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                             <BackIcon /> <span>Back</span>
                                         </Button>
                                     </div>
-                                    <div className="flex flex-col justify-between max-h-[90vh] overflow-y-auto">
+                                    <div className="flex flex-col justify-between max-h-[90vh] min-h-[88vh] overflow-y-auto">
                                         {
                                             getOrderHistory.length > 0 ? (
                                                 <div className="flex flex-col max-h-[90vh] overflow-auto ">

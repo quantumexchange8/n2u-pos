@@ -26,7 +26,7 @@ class TableLockController extends Controller
             // Optionally remember who owns the lock
             Cache::put($this->lockKey($table).":owner", $userId, 60);
 
-            broadcast(new TableLocked($table->id))->toOthers();
+            // broadcast(new TableLocked($table->id))->toOthers();
 
             return response()->json(['locked' => true, 'owner' => $userId]);
         }
@@ -45,7 +45,7 @@ class TableLockController extends Controller
             Cache::forget($this->lockKey($table).":owner");
             // Release the lock if still held
             optional(Cache::lock($this->lockKey($table)))->release();
-            broadcast(new TableUnlocked($table->id))->toOthers();
+            // broadcast(new TableUnlocked($table->id))->toOthers();
 
             return response()->json(['unlocked' => true]);
         }
