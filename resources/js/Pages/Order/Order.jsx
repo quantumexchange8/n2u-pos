@@ -775,7 +775,9 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                             }
                                             <Button variant="white" size="md" iconOnly pill disabled={requiredDisable} onClick={() => {
                                                 setSelectedProduct(null)
-                                                setIsOrderHistoryOpen(true)}}
+                                                if (table.order) {
+                                                    setIsOrderHistoryOpen(true)}}
+                                                }
                                             >
                                                 <OrderHistoryIcon className='w-4 h-4 text-neutral-900' />
                                             </Button>
