@@ -120,7 +120,9 @@ export default function AllProduct({
             product_image: item.product_image ? item.product_image : ''
         }
         setData("products", [...data.products, newProduct]);
-        setSelectedProduct(newProduct);
+        if (item.product_modifier_group.length > 0) {
+            setSelectedProduct(newProduct);
+        }
     }
 
     const removeSelectedProd = (id) => {
@@ -733,7 +735,10 @@ export default function AllProduct({
                                         {
                                             getProducts.map((item) => (
                                                 <div key={item.id} className="flex flex-col gap-3 p-3 bg-white border border-neutral-50 rounded-lg shadow-sec-voucher cursor-pointer relative" onClick={() => selectProd(item)}>
-                                                    {/* <Badge count={} /> */}
+                                                    
+                                                    {/* <div className="absolute top-0 right-0">
+                                                        <Badge count={1} />
+                                                    </div> */}
                                                     <div className="w-full h-32 bg-neutral-50 rounded flex items-center justify-center">
                                                         <img src={item.product_image} alt="" className="h-[75px] " />
                                                     </div>

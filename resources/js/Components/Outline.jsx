@@ -406,6 +406,15 @@ const PrintIcon = ({color, className, ...rest}) => {
     ); 
 }
 
+const SearchIcon2 = ({color, className, ...rest}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" fill="none">
+            <path d="M52.5 52.5L37.5002 37.5M42.5 25C42.5 34.665 34.665 42.5 25 42.5C15.335 42.5 7.5 34.665 7.5 25C7.5 15.335 15.335 7.5 25 7.5C34.665 7.5 42.5 15.335 42.5 25Z" stroke="#D4D4D8" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    ); 
+}
+
+
 export {
     ReturnIcon,
     DashboardIcon,
@@ -443,5 +452,6 @@ export {
     CardIcon,
     BackspaceIcon2,
     PrintIcon,
+    SearchIcon2,
     // TngIcon,
 }

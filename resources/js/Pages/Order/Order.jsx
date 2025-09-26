@@ -190,7 +190,7 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
 
     const selectUser = async () => {
 
-        if (table.user) {
+        if (table.order) {
             try {
                 
                 const response = await axios.post('/api/add-customer-to-order', {
@@ -555,7 +555,7 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                             <div className="w-10 h-10 flex items-center justify-center p-2 border border-primary-200 shadow-input rounded-xl text-primary-500 text-sm font-bold">{item.qty}</div>
                                             <div className="flex flex-col gap-1 w-full">
                                                 <div className="flex items-center justify-between w-full">
-                                                    <div className="text-neutral-800 text-sm font-bold">{item.product.item_code} - {item.product.name}</div>
+                                                    <div className="text-neutral-800 text-sm font-bold max-w-40 truncate">{item.product.item_code} - {item.product.name}</div>
                                                     <div>RM {item.total_price}</div>
                                                 </div>
                                                 <div className="flex flex-col gap-1">
@@ -673,7 +673,7 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                                                 <div className="w-10 h-10 flex items-center justify-center p-2 border border-primary-200 shadow-input rounded-xl text-primary-500 text-sm font-bold">{item.qty}</div>
                                                                 <div className="flex flex-col gap-1 w-full">
                                                                     <div className="flex items-center justify-between w-full">
-                                                                        <div className="text-neutral-800 text-sm font-bold">{item.product.item_code} - {item.product.name}</div>
+                                                                        <div className="text-neutral-800 text-sm font-bold max-w-[180px] truncate">{item.product.item_code} - {item.product.name}</div>
                                                                         <div>RM {item.total_price}</div>
                                                                     </div>
                                                                     <div className="flex flex-col gap-1">
@@ -794,7 +794,7 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                             </div>
                                         )
                                     }
-                                    <div className="flex flex-col justify-between min-h-[96vh]">
+                                    <div className="flex flex-col justify-between max-h-[90vh] min-h-[88vh]">
                                         {
                                             data.products && data.products.length > 0 ? (
                                                 <div className="flex flex-col">
@@ -871,7 +871,7 @@ export default function Order({ table, paxs, draftOrder, orderItemInComplete }) 
                                                 <div className="text-neutral-900 text-lg font-bold">RM {formatAmount(totalBill)}</div>
                                             </div>
                                             <div className="py-2 px-4 flex gap-3 items-center">
-                                                {/* <Button variant="secondary" size="md" className="w-full flex justify-center" onClick={goToPay} >Go to Pay</Button> */}
+                                                <Button variant="secondary" size="md" className="w-full flex justify-center" onClick={goToPay} >Go to Pay</Button>
                                                 <Button size="md" className="w-full flex justify-center" onClick={placeOrder} disabled={isPlacingOrder || data.products.length == 0 || requiredDisable} >Place Order</Button>
                                             </div>
                                         </div>

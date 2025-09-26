@@ -43,7 +43,7 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $user = User::where('uid', $this->input('uid'))->first();
+        $user = User::where('uid', $this->input('uid'))->whereNot('role', 'member')->first();
 
         Log::info('user' . $user . 'password' . $this->input('password'));
 
@@ -56,6 +56,9 @@ class LoginRequest extends FormRequest
         }
 
         Auth::login($user, $this->boolean('remember'));
+        $user->update([
+            'last_login' => now(), // will use Carbon::now() and store in DATETIME
+        ]);
 
         // if (Auth::user()->role === 'member') {
         //     Auth::logout();

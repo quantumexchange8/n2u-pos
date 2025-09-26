@@ -13,7 +13,7 @@ class PaymentController extends Controller
     public function payment(Request $request)
     {
 
-        $findOrder = Order::find($request->order);
+        $findOrder = Order::with(['user'])->find($request->order);
         $findTable = FloorTable::find($request->table);
 
         if ($findOrder->status === 'completed') {

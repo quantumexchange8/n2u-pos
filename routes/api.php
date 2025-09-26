@@ -22,6 +22,9 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('logout', 'logout')->middleware('auth:sanctum');
 });
 
+Route::get('/getLastLoginUser', [MemberController::class, 'getLastLoginUser']);
+Route::get('/getUser', [MemberController::class, 'getUser']);
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/checkShift', [ShiftController::class, 'checkShift']);

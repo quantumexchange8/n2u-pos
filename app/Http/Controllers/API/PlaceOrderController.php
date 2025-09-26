@@ -159,7 +159,6 @@ class PlaceOrderController extends Controller
 
     public function placeOrderItem(Request $request)
     {
-        // dd($request->all());
 
         $findTable = FloorTable::find($request->table_id);
         $user = Auth::user();
@@ -224,7 +223,7 @@ class PlaceOrderController extends Controller
                     'type' => 'product',
                     'qty' => $item['quantity'],
                     'price' => $item['prices'],
-                    'total_price' => $item['total_price'] * $item['quantity'],
+                    'total_price' => $item['total_price'],
                     'remarks' => $item['remarks'],
                     'status' => 'preparing',
                 ]);

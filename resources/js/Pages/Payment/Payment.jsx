@@ -45,11 +45,11 @@ export default function Payment({ order, table}) {
                         <div className="text-neutral-800 text-lg font-bold">Bill {order ? order.order_no : ''}</div>
                     </div>
                 </div>
-                <div className="flex flex-col justify-between min-h-[92vh]">
+                <div className="flex flex-col justify-between max-h-[95vh] min-h-[90vh]">
                     {/* order history details */}
                     {
                         orderItems.length > 0 ? (
-                            <div className="flex flex-col max-h-[90vh] overflow-auto ">
+                            <div className="flex flex-col max-h-[80vh] overflow-auto ">
                                 {
                                     orderItems.map((item) => (
                                         <div key={item.id} className={`p-4 flex  gap-4 border-b border-neutral-50`} >
@@ -121,7 +121,7 @@ export default function Payment({ order, table}) {
                 <div className="py-5 px-4 flex items-center gap-5 border-b border-neutral-100 sticky top-0 z-20 bg-white">
                     <div className="flex flex-col w-full">
                         <div className="text-neutral-900 text-lg font-bold">{table.table_name}</div>
-                        <div className=" uppercase text-xs text-neutral-400">pax: {table.order?.pax}</div>
+                        <div className=" uppercase text-xs text-neutral-400">pax: {order.pax}</div>
                     </div>
                 </div>
 

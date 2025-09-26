@@ -98,10 +98,16 @@ export default function PaymentMethod({
         }
     }
 
-    return (
-        <div className={` flex flex-col w-full min-h-[80vh]`}>
+    const selectPaymentMethod = (selectedId) => {
 
-            <div className="flex flex-row max-h-[85vh]">
+        const newPayment =  paymentMethods.find((p) => p.id === selectedId);
+        setSelectedPayment(newPayment)
+    }
+
+    return (
+        <div className={` flex flex-col w-full min-h-[80vh] max-h-[95vh] overflow-auto`}>
+
+            <div className="flex flex-row max-h-[90vh]">
                 <div className="w-5/6 p-4 flex flex-col gap-4">
                     {
                         selectedPayment?.value === 'cash' && (
@@ -113,7 +119,7 @@ export default function PaymentMethod({
                                 <div className="grid grid-cols-4 gap-3" >
                                     {
                                         buttons.map((btn, i) => (
-                                            <button key={i} onClick={() => handleClick(btn)} className="flex items-center justify-center p-8 border border-neutral-100 bg-white shadow-keypad rounded-xl hover:bg-neutral-50" >
+                                            <button key={i} onClick={() => handleClick(btn)} className="flex items-center justify-center p-6 border border-neutral-100 bg-white shadow-keypad rounded-xl hover:bg-neutral-50 text-lg" >
                                                 {btn}
                                             </button>
                                         ))
@@ -122,8 +128,16 @@ export default function PaymentMethod({
                             </div>
                         ) 
                     }
+
+                    {
+                        selectedPayment?.value !== 'cash' && (
+                            <div className="flex flex-col gap-4">
+                                <div className="py-3 flex justify-center">Coming soon...</div>
+                            </div>
+                        ) 
+                    }
                     
-                    <div className="flex flex-col gap-10">
+                    <div className="flex flex-col gap-5">
                         <div className="w-full">
                             <Button size="lg" className="w-full flex justify-center items-center h-[52px] box-border" disabled={disabledPaynow} onClick={payByCash}>Pay now</Button>
                         </div>
@@ -131,12 +145,10 @@ export default function PaymentMethod({
                         <div className="grid grid-cols-2 gap-3">
                             <div className="py-4 px-5 border border-neutral-100 rounded-xl flex flex-row gap-4 items-center shadow-keypad">
                                 {
-                                    order.customer ? (
+                                    order.user ? (
                                         <>
-                                            <div>
-
-                                            </div>
-                                            <div className="text-neutral-700 font-bold text-sm">{order.customer.name}</div>
+                                            <GuestIcon />
+                                            <div className="text-neutral-700 font-bold text-sm">{order.user.name}</div>
                                         </>
                                     ) : (
                                         <>
@@ -169,7 +181,7 @@ export default function PaymentMethod({
                             <div className="flex flex-col gap-3">
                                 {
                                     paymentMethods.map((method) => (
-                                        <div key={method.id} className={`${selectedPayment.value === method.value ? 'bg-neutral-25' : 'bg-white'} py-4 px-5 flex flex-row gap-4 items-center border border-neutral-100  rounded-xl shadow-keypad`}>
+                                        <div key={method.id} className={`${selectedPayment.value === method.value ? 'bg-neutral-25' : 'bg-white'} py-4 px-5 flex flex-row gap-4 items-center border border-neutral-100  rounded-xl shadow-keypad cursor-pointer `} onClick={() => selectPaymentMethod(method.id)} >
                                             {
                                                 method.value === 'cash' && (
                                                     <CashIcon />

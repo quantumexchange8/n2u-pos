@@ -34,7 +34,7 @@ class ProductController extends Controller
             }
 
             if ($category->type === 'set') {
-                $query = SetMeal::with(['set_meal_item.product', 'set_meal_group.set_meal_group_item.set_meal_group_item.product']);
+                $query = SetMeal::with(['set_meal_item.product', 'set_meal_group.set_meal_group_item.product']);
             }
         }
 

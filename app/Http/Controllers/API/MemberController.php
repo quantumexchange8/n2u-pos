@@ -9,6 +9,26 @@ use Illuminate\Http\Request;
 
 class MemberController extends Controller
 {
+
+    public function getLastLoginUser(Request $request)
+    {
+
+        $users = User::where('role', '!=', 'member')
+            ->orderByDesc('last_login') // latest first
+            ->limit(11)                 // only 11
+            ->get();
+
+        return response()->json($users);
+    }
+
+    public function getUser()
+    {
+
+        $users = User::where('role', '!=', 'member')->get();
+
+        return response()->json($users);
+    }
+
     public function getCustomer()
     {
 
